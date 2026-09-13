@@ -94,6 +94,11 @@ class StoreBackend(ABC):
     def ensure_room(self, room_key: str, room_type: str = "group", created_by: str = None) -> None:
         ...
 
+    def delete_room(self, room_key: str) -> bool:
+        """Remove a room and its messages (soft-deletes messages where the backend
+        keeps history, matching the existing per-message soft-delete convention)."""
+        return False
+
     def edit_message(self, message_id: str, new_body: str) -> bool:
         return False
 

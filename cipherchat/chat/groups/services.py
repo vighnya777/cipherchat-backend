@@ -147,3 +147,18 @@ def set_admin(group_id: str, actor: str, target: str, make_admin: bool) -> dict:
         admins.discard(target)
     group["admins"] = sorted(admins)
     return group
+
+
+def delete_group(group_id: str, actor: str) -> dict:
+    """Permanently deletes a group. Owner-only — this is intentionally stricter
+    than the "any admin" rule used elsewhere in this module, since deletion is
+    destructive and irreversible for every member, not just the actor."""
+    group = require_group(group_id)
+    if _norm(actor) != group["owner"]:
+        raise GroupError("Only the group owner can delete this group.", 403)
+    from cipherchat.chat.groups.models import group_room_id
+
+    room_key = group_room_id(group_id)
+    store.backend.delete_room(room_key)
+    store.groups.pop(group_id, None)
+    return group

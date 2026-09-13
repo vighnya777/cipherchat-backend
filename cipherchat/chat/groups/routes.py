@@ -128,3 +128,21 @@ def leave_group(group_id):
         return jsonify({"error": str(exc)}), exc.status
     _broadcast(group, event="group_member_removed", removed_email=email)
     return jsonify({"success": True})
+
+
+@group_bp.route("/<group_id>", methods=["DELETE"])
+def delete_group(group_id):
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    # Capture the pre-delete group (and its member list) so we can notify everyone
+    # who was in it — group_svc.delete_group() removes the group from the registry,
+    # so this must happen before that call, not after.
+    existing = group_svc.get_group(group_id)
+    if not existing or session["user_email"] not in existing.get("members", []):
+        return jsonify({"error": "not found"}), 404
+    try:
+        group_svc.delete_group(group_id, session["user_email"])
+    except GroupError as exc:
+        return jsonify({"error": str(exc)}), exc.status
+    _broadcast(existing, event="group_deleted")
+    return jsonify({"success": True})

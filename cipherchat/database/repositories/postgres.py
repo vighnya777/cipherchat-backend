@@ -198,6 +198,23 @@ class PostgresRepository(StoreBackend):
                 s.add(Room(room_key=room_key, room_type=room_type, created_by=created_by, name=room_key))
                 s.commit()
 
+    def delete_room(self, room_key: str) -> bool:
+        with self._session() as s:
+            room = s.scalar(select(Room).where(Room.room_key == room_key))
+            # Soft-delete the room's messages (same convention get_messages() already
+            # relies on via Message.soft_deleted) rather than hard-deleting message
+            # history outright.
+            s.execute(
+                Message.__table__.update()
+                .where(Message.room_key == room_key)
+                .values(soft_deleted=True)
+            )
+            if room:
+                # RoomMember rows cascade via ondelete="CASCADE" on the FK.
+                s.delete(room)
+            s.commit()
+            return room is not None
+
     def append_message(self, room_key: str, message: dict, is_private: bool = False) -> dict:
         self.ensure_room(room_key, "dm" if is_private or room_key.startswith("dm_") else "group")
         mid = message.get("message_id") or message.get("id") or __import__("uuid").uuid4().hex

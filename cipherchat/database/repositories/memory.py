@@ -91,6 +91,13 @@ class MemoryRepository(StoreBackend):
         else:
             self.chat_rooms.setdefault(room_key, [])
 
+    def delete_room(self, room_key: str) -> bool:
+        existed = room_key in self.chat_rooms or room_key in self.private_rooms
+        self.chat_rooms.pop(room_key, None)
+        self.private_rooms.pop(room_key, None)
+        self.room_files.pop(room_key, None)
+        return existed
+
     def append_message(self, room_key: str, message: dict, is_private: bool = False) -> dict:
         self.ensure_room(room_key, "dm" if is_private or room_key.startswith("dm_") else "group")
         if is_private or room_key.startswith("dm_"):
