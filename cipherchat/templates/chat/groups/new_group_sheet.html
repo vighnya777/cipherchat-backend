@@ -1,0 +1,67 @@
+<div class="cc-sheet" id="newGroupSheet" aria-hidden="true">
+  <div class="cc-sheet-card cc-wizard" role="dialog" aria-modal="true" aria-labelledby="newGroupTitle">
+    <div class="cc-wizard-steps" id="newGroupSteps">
+      <span class="cc-wizard-step is-active" data-step-dot="1">1<em>Members</em></span>
+      <span class="cc-wizard-step" data-step-dot="2">2<em>Info</em></span>
+      <span class="cc-wizard-step" data-step-dot="3">3<em>Settings</em></span>
+      <span class="cc-wizard-step" data-step-dot="4">4<em>Review</em></span>
+    </div>
+
+    <!-- Step 1: select members -->
+    <section class="cc-wizard-panel is-active" data-wizard-panel="1">
+      <h3 id="newGroupTitle">Add group members</h3>
+      <p>Search your contacts or any CipherChat user to add them.</p>
+      <input type="search" id="newGroupMemberSearch" placeholder="Search by name or username"
+             autocomplete="off" class="cc-wizard-input">
+      <div class="cc-wizard-selected-count" id="newGroupSelectedCount">0 selected</div>
+      <div id="newGroupMembers" class="cc-wizard-scroll"></div>
+    </section>
+
+    <!-- Step 2: group info -->
+    <section class="cc-wizard-panel" data-wizard-panel="2">
+      <h3>Group info</h3>
+      <p>Give your group a name, photo, and short description.</p>
+      <div class="cc-wizard-photo-row">
+        <button type="button" class="cc-wizard-photo-btn" id="newGroupPhotoBtn" title="Add group photo">
+          <img id="newGroupPhotoPreview" alt="" style="display:none">
+          <i class="bi bi-camera-fill" id="newGroupPhotoIcon"></i>
+        </button>
+        <input type="file" id="newGroupPhotoInput" accept="image/*" hidden>
+        <div class="cc-wizard-photo-hint" id="newGroupPhotoStatus">Optional group photo</div>
+      </div>
+      <input type="text" id="newGroupName" placeholder="Group name (required)" maxlength="80" class="cc-wizard-input">
+      <textarea id="newGroupDescription" placeholder="Description (optional)" maxlength="280" rows="3" class="cc-wizard-input"></textarea>
+    </section>
+
+    <!-- Step 3: settings -->
+    <section class="cc-wizard-panel" data-wizard-panel="3">
+      <h3>Group settings</h3>
+      <p>Only settings CipherChat can actually enforce are shown here.</p>
+      <label class="cc-wizard-toggle-row">
+        <div>
+          <div class="convo-name">Who can add members</div>
+          <div class="convo-last">Off: only admins. On: any member can add people.</div>
+        </div>
+        <input type="checkbox" id="newGroupMembersCanAdd">
+      </label>
+      <div class="cc-wizard-note">
+        Group info edits and admin management are always admin-only — CipherChat
+        doesn't yet support delegating those, so no toggle is shown for them.
+      </div>
+    </section>
+
+    <!-- Step 4: review -->
+    <section class="cc-wizard-panel" data-wizard-panel="4">
+      <h3>Review &amp; create</h3>
+      <div class="cc-wizard-review" id="newGroupReview"></div>
+    </section>
+
+    <div class="cc-wizard-actions">
+      <button type="button" class="composer-icon-btn" id="newGroupBackBtn" title="Back" style="display:none"><i class="bi bi-arrow-left"></i></button>
+      <button type="button" class="composer-icon-btn" id="closeNewGroupBtn" title="Close"><i class="bi bi-x-lg"></i></button>
+      <div style="flex:1"></div>
+      <button type="button" class="btn-new" id="newGroupNextBtn">Next</button>
+      <button type="button" class="btn-new" id="createGroupBtn" style="display:none">Create group</button>
+    </div>
+  </div>
+</div>

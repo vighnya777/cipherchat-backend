@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#09090B">
+    <title>{% block title %}CipherChat | Secure. Private. Intelligent.{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cipherchat.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block page_class %}{% endblock %}">
+    <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+    <header class="app-nav" aria-label="Primary navigation">
+        <a class="brand" href="{{ url_for('auth.index') }}" aria-label="CipherChat home"><span class="brand-mark">C</span><span>CipherChat</span></a>
+        <nav class="nav-actions">
+            {% if session.get('authenticated') %}
+                <a class="nav-link" href="{{ url_for('chat.chat') }}">Conversations</a>
+                <a class="nav-link" href="{{ url_for('chat.profile') }}">Profile</a>
+                {% if session.get('user_email') == config.get('ADMIN_EMAIL') %}<a class="nav-link" href="{{ url_for('admin.admin') }}">Control room</a>{% endif %}
+                <a class="button button-quiet" href="{{ url_for('auth.logout') }}">Sign out</a>
+            {% else %}
+                <a class="nav-link" href="{{ url_for('auth.login') }}">Sign in</a>
+                <a class="button button-primary" href="{{ url_for('auth.register') }}">Create account</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main class="app-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}<section class="flash-stack" aria-live="polite">{% for category, message in messages %}<div class="flash flash-{{ category }}"><span>{{ message }}</span><button type="button" aria-label="Dismiss">Close</button></div>{% endfor %}</section>{% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script src="{{ url_for('static', filename='js/cipherchat.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

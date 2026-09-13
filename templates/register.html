@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Create account | CipherChat{% endblock %}
+{% block extra_css %}
+<style>
+.auth-shell{min-height:calc(100vh - 72px);display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(32px,8vw,120px);align-items:center;padding:clamp(40px,8vw,112px) 8vw}
+.auth-intro h1{max-width:680px;margin:14px 0 22px;font-size:clamp(46px,7vw,88px);letter-spacing:-.075em;line-height:.96}
+.eyebrow{font:500 12px "DM Mono",monospace;letter-spacing:.13em;text-transform:uppercase;color:#67e8f9}
+.auth-intro p{max-width:470px;margin:0;color:var(--muted);font-size:17px;line-height:1.7}
+.trust-list{display:flex;gap:24px;margin-top:44px;color:#d1d5db;font-size:13px}
+.trust-list span{display:flex;gap:8px;align-items:center}
+.trust-list b{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 15px var(--success)}
+.auth-card{padding:36px;max-width:480px;width:100%;justify-self:end}
+.auth-card h2{margin:0 0 6px;font-size:25px;letter-spacing:-.05em}
+.auth-card>p{margin:0 0 28px;color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:grid;gap:8px}
+.field.full{grid-column:1 / -1}
+.field label{color:#d1d5db;font-weight:700;font-size:13px}
+.field label span{color:var(--danger)}
+.field label small{color:var(--muted);font-weight:500}
+.form-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:26px;color:var(--muted);font-size:13px}
+.form-foot a{color:#a5b4fc;font-weight:700}
+.security-note{border-top:1px solid var(--line);padding-top:20px;margin-top:24px;color:var(--muted);font-size:12px;line-height:1.6}
+.btn-loading{opacity:.75;pointer-events:none}
+.btn-loading .btn-label{display:none}
+.btn-loading .btn-spinner{display:inline-flex!important}
+.btn-spinner{display:none;align-items:center;gap:10px}
+.btn-spinner::before{content:"";width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.oauth-divider{display:flex;align-items:center;gap:14px;margin:22px 0 18px;color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.oauth-divider::before,.oauth-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.oauth-stack{display:grid;gap:10px;margin-bottom:6px}
+.oauth-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:12px 16px;border-radius:12px;font-weight:700;font-size:14px;
+  text-decoration:none;border:1px solid var(--line);transition:transform .15s ease,opacity .15s ease,background .15s ease;
+  position:relative;overflow:hidden;
+}
+.oauth-btn:hover{transform:translateY(-1px);text-decoration:none}
+.oauth-btn:active{transform:scale(.99)}
+.oauth-btn.google{background:#fff;color:#111827}
+.oauth-btn.google:hover{background:#f3f4f6}
+.oauth-btn.github{background:#111827;color:#f9fafb;border-color:#374151}
+.oauth-btn.github:hover{background:#1f2937}
+.oauth-btn svg{width:18px;height:18px;flex-shrink:0}
+.oauth-btn.is-loading{pointer-events:none;opacity:.8}
+.oauth-btn.is-loading .oauth-label{opacity:0}
+.oauth-btn .oauth-spin{
+  display:none;position:absolute;inset:0;align-items:center;justify-content:center;gap:10px;font-size:13px;font-weight:700;
+}
+.oauth-btn.is-loading .oauth-spin{display:flex}
+.oauth-spin::before{
+  content:"";width:16px;height:16px;border-radius:50%;
+  border:2px solid rgba(0,0,0,.15);border-top-color:currentColor;
+  animation:spin .7s linear infinite;
+}
+.oauth-btn.github .oauth-spin::before{border-color:rgba(255,255,255,.2);border-top-color:#fff}
+
+@media(max-width:800px){.auth-shell{display:block;padding:56px 20px}.auth-intro{margin-bottom:38px}.auth-intro h1{font-size:50px}.auth-card{justify-self:auto;margin:auto}.trust-list{margin-top:26px;flex-wrap:wrap}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.form-foot{flex-direction:column-reverse;align-items:flex-start}}
+</style>
+{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-intro">
+    <div class="eyebrow">CipherChat / private by design</div>
+    <h1>Join the secure workspace.</h1>
+    <p>Create an account to begin verification. Your administrator approves access before you can sign in.</p>
+    <div class="trust-list">
+      <span><b></b>Email verification</span>
+      <span><b></b>Admin approval</span>
+      <span><b></b>Encrypted rooms</span>
+    </div>
+  </div>
+
+  <form class="auth-card glass-card" method="post" id="registrationForm" novalidate>
+    <div class="eyebrow">Request access</div>
+    <h2>Create your account</h2>
+    <p>Use a permanent work email. Temporary addresses are not accepted.</p>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="username">Username <span>*</span></label>
+        <input id="username" name="username" required minlength="3" maxlength="20" autocomplete="username" placeholder="alex.morgan" value="{{ username|default('') }}">
+      </div>
+      <div class="field">
+        <label for="phone">Phone <small>(optional)</small></label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 555 000 0000" value="{{ phone|default('') }}">
+      </div>
+      <div class="field full">
+        <label for="email">Work email <span>*</span></label>
+        <input id="email" name="email" type="email" required autocomplete="email" placeholder="alex@company.com" value="{{ email|default('') }}">
+      </div>
+      <div class="field">
+        <label for="password">Password <span>*</span></label>
+        <input id="password" name="password" type="password" required autocomplete="new-password" placeholder="Create a strong password">
+      </div>
+      <div class="field">
+        <label for="confirm_password">Confirm password <span>*</span></label>
+        <input id="confirm_password" name="confirm_password" type="password" required autocomplete="new-password" placeholder="Repeat your password">
+      </div>
+    </div>
+
+    
+    <div class="oauth-divider">or continue with</div>
+    <div class="oauth-stack">
+      <a class="oauth-btn google" id="googleOAuthBtn" href="{{ url_for('auth.google_login') }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 10.2v3.6h5.1c-.2 1.2-.9 2.3-1.9 3l3.1 2.4c1.8-1.7 2.9-4.1 2.9-7 0-.7-.1-1.3-.2-1.9H12z"/><path fill="#34A853" d="M12 22c2.6 0 4.8-.9 6.4-2.3l-3.1-2.4c-.9.6-2 .9-3.3.9-2.5 0-4.6-1.7-5.4-4H3.4v2.5C5 19.9 8.2 22 12 22z"/><path fill="#4A90E2" d="M6.6 14.2c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V7.9H3.4C2.5 9.6 2 11.2 2 13s.5 3.4 1.4 5.1l3.2-2.5z"/><path fill="#FBBC05" d="M12 5.8c1.4 0 2.7.5 3.7 1.4l2.8-2.8C16.8 2.9 14.6 2 12 2 8.2 2 5 4.1 3.4 7.9l3.2 2.5C7.4 7.5 9.5 5.8 12 5.8z"/></svg>
+        <span class="oauth-label">Continue with Google</span>
+        <span class="oauth-spin">Connecting to Google…</span>
+      </a>
+      <a class="oauth-btn github" id="githubOAuthBtn" href="{{ url_for('auth.github_login') }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.48 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.46-1.2-1.12-1.52-1.12-1.52-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.58 2.36 1.12 2.94.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.84c.85 0 1.7.12 2.5.34 1.9-1.32 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .26.18.59.69.48A10.27 10.27 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/></svg>
+        <span class="oauth-label">Continue with GitHub</span>
+        <span class="oauth-spin">Connecting to GitHub…</span>
+      </a>
+    </div>
+
+    <div class="form-foot">
+      <span>Already have access? <a href="{{ url_for('auth.login') }}">Sign in</a></span>
+      <button class="btn btn-primary" type="submit" id="registerSubmit">
+        <span class="btn-label">Request access</span>
+        <span class="btn-spinner" aria-live="polite">Requesting access…</span>
+      </button>
+    </div>
+
+    <div class="security-note">
+      After registration you must verify your email. An administrator must approve your account before sign-in is allowed.
+    </div>
+  </form>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  
+  function wireOAuth(id, label) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function () {
+      el.classList.add('is-loading');
+      el.setAttribute('aria-busy', 'true');
+    });
+  }
+  wireOAuth('googleOAuthBtn');
+  wireOAuth('githubOAuthBtn');
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) {
+      ['googleOAuthBtn','githubOAuthBtn'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.classList.remove('is-loading'); el.removeAttribute('aria-busy'); }
+      });
+    }
+  });
+
+  var form = document.getElementById('registrationForm');
+  var btn = document.getElementById('registerSubmit');
+  if (form && btn) {
+    form.addEventListener('submit', function () {
+      if (!form.checkValidity()) return;
+      btn.classList.add('btn-loading');
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+    });
+  }
+})();
+</script>
+{% endblock %}

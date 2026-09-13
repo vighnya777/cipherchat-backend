@@ -1,0 +1,92 @@
+<div class="panel-section">
+  <div class="panel-header">
+    <div>
+      <h2>User management</h2>
+      <p>Search, filter, and manage user accounts.</p>
+    </div>
+    <div class="panel-toolbar">
+      <button class="btn btn-outline-light btn-sm" onclick="document.getElementById('userFilterForm').submit()">Apply filters</button>
+    </div>
+  </div>
+  <form method="GET" action="{{ url_for('admin.admin') }}" id="userFilterForm" class="filter-row">
+    <input type="text" name="q" class="form-input" placeholder="Search email, username, role" value="{{ search_query }}" />
+    <select name="status" class="form-select">
+      <option value="">All status</option>
+      <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+      <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+    </select>
+    <select name="role" class="form-select">
+      <option value="">All roles</option>
+      <option value="user" {% if role_filter == 'user' %}selected{% endif %}>User</option>
+      <option value="moderator" {% if role_filter == 'moderator' %}selected{% endif %}>Moderator</option>
+      <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admin</option>
+    </select>
+    <select name="sort" class="form-select">
+      <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Created</option>
+      <option value="username" {% if sort_by == 'username' %}selected{% endif %}>Username</option>
+      <option value="last_login" {% if sort_by == 'last_login' %}selected{% endif %}>Last activity</option>
+    </select>
+  </form>
+</div>
+<div class="table-card">
+  <div class="table-card-header">
+    <h3>Users</h3>
+    <div class="table-card-actions">
+      <select class="form-select form-select-sm" id="bulkAction">
+        <option value="">Bulk actions</option>
+        <option value="approve">Approve</option>
+        <option value="reject">Reject</option>
+        <option value="delete">Delete</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="applyBulkAction()">Apply</button>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table admin-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="selectAll" /></th>
+          <th>User</th>
+          <th>Status</th>
+          <th>Verified</th>
+          <th>Role</th>
+          <th>Created</th>
+          <th>Last seen</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td><input type="checkbox" class="form-check-input user-checkbox" value="{{ user.email }}" {% if user.email == admin_email %}disabled{% endif %} /></td>
+            <td class="user-cell">
+              <span class="user-icon">{{ (user.username or user.email)[0].upper() }}</span>
+              <div>
+                <strong>{{ user.username or 'Unknown' }}</strong>
+                <div class="text-muted small">{{ user.email }}</div>
+              </div>
+            </td>
+            <td><span class="badge badge-status badge-{{ user.status|default('pending') }}">{{ user.status|default('pending') }}</span></td>
+            <td><span class="badge badge-verified">{{ 'Yes' if user.verified else 'No' }}</span></td>
+            <td>
+              <select class="form-select form-select-sm role-select" data-email="{{ user.email }}" data-original-value="{{ user.role }}" {% if user.email == admin_email %}disabled{% endif %}>
+                <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                <option value="moderator" {% if user.role == 'moderator' %}selected{% endif %}>Moderator</option>
+                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+              </select>
+            </td>
+            <td>{{ user.created_at[:10] if user.created_at else '—' }}</td>
+            <td>{{ user.last_seen[:16] if user.last_seen else 'Never' }}</td>
+            <td>
+              <button class="btn btn-sm btn-light" onclick="viewUserDetails('{{ user.email }}')"><i class="fas fa-eye"></i></button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if not users %}
+      <div class="empty-table">No users found.</div>
+    {% endif %}
+  </div>
+</div>

@@ -1,0 +1,65 @@
+{% extends "admin/layout.html" %}
+{% block title %}CipherChat Admin Dashboard{% endblock %}
+{% block content %}
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-brand">
+      <div class="brand-mark">C</div>
+      <div>
+        <h1>CipherChat</h1>
+        <p>Admin control center</p>
+      </div>
+    </div>
+    <nav class="admin-nav">
+      <button class="admin-nav-item active" data-bs-target="#dashboard" type="button">Dashboard</button>
+      <button class="admin-nav-item" data-bs-target="#users" type="button">Users</button>
+      <button class="admin-nav-item" data-bs-target="#rooms" type="button">Rooms</button>
+      <button class="admin-nav-item" data-bs-target="#security" type="button">Security</button>
+      <button class="admin-nav-item" data-bs-target="#analytics" type="button">Analytics</button>
+      <button class="admin-nav-item" data-bs-target="#logs" type="button">Logs</button>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <div class="admin-avatar">{{ session.user_email[0].upper() }}</div>
+      <div>
+        <div class="admin-username">{{ session.user_email }}</div>
+        <div class="admin-role">Administrator</div>
+      </div>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <section class="admin-panel" id="dashboard">
+      {% include 'admin/dashboard_panel.html' %}
+    </section>
+    <section class="admin-panel d-none" id="users">
+      {% include 'admin/users_panel.html' %}
+    </section>
+    <section class="admin-panel d-none" id="rooms">
+      {% include 'admin/rooms_panel.html' %}
+    </section>
+    <section class="admin-panel d-none" id="security">
+      {% include 'admin/security_panel.html' %}
+    </section>
+    <section class="admin-panel d-none" id="analytics">
+      {% include 'admin/analytics_panel.html' %}
+    </section>
+    <section class="admin-panel d-none" id="logs">
+      {% include 'admin/logs_panel.html' %}
+    </section>
+  </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  window.ADMIN_STATS = {
+    approved_users: {{ stats.approved_users|default(0) }},
+    pending_users: {{ stats.pending_users|default(0) }},
+    rejected_users: {{ stats.rejected_users|default(0) }},
+    total_users: {{ stats.total_users|default(0) }},
+    active_users: {{ stats.active_users|default(0) }},
+    new_users: {{ stats.new_users|default(0) }},
+    system_health: "{{ stats.system_health or 'idle' }}",
+    uptime: "{{ stats.uptime or 'n/a' }}",
+  };
+</script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

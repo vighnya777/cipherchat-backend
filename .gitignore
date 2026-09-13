@@ -1,0 +1,47 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Database and logs
+*.db
+*.sqlite3
+*.log
+securechat.log
+app_stdout.txt
+app_stderr.txt
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Media and uploads
+uploads/
+!uploads/.gitkeep
+
+# IDE and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Temporary debug scripts
+tmp_*.py
+test_debug_*.py
+debug_patch.py
+APPLY.txt
+

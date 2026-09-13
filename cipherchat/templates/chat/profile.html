@@ -1,0 +1,805 @@
+{% extends "base.html" %}
+{% block page_class %}profile-page{% endblock %}
+{% block title %}Profile — CipherChat Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ---------- Layout ---------- */
+  .profile-shell {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px 64px;
+    display: grid;
+    gap: 20px;
+  }
+
+  .p-card {
+    background: linear-gradient(180deg, var(--surface-raised), var(--surface));
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset;
+  }
+
+  /* ---------- Header ---------- */
+  .p-header {
+    position: relative;
+    padding: 32px 28px;
+    overflow: hidden;
+    display: grid;
+    gap: 18px;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+  }
+  .p-header::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 15% -10%, var(--primary-glow), transparent 55%),
+                radial-gradient(circle at 100% 0%, var(--accent-glow), transparent 45%);
+    pointer-events: none;
+  }
+  .p-avatar-wrap { position: relative; z-index: 1; }
+  .p-avatar {
+    width: 96px; height: 96px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff; font-size: 34px; font-weight: 800;
+    font-family: var(--font-mono);
+    overflow: hidden;
+    border: 3px solid rgba(255,255,255,0.08);
+    box-shadow: 0 12px 30px var(--primary-glow);
+  }
+  .p-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .p-online-dot {
+    position: absolute; right: 4px; bottom: 4px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--muted-2);
+    border: 3px solid var(--surface-raised);
+  }
+  .p-online-dot.is-online { background: var(--success); }
+
+  .p-identity { position: relative; z-index: 1; min-width: 0; }
+  .p-name { margin: 0; font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+  .p-username { margin: 2px 0 0; color: var(--muted); font-family: var(--font-mono); font-size: 13px; }
+  .p-email { margin: 2px 0 0; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+  .p-meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+  .p-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: var(--radius-full);
+    font-size: 12px; font-weight: 700; border: 1px solid var(--line);
+    background: rgba(255,255,255,0.04); color: var(--muted);
+  }
+  .p-badge.tone-success { color: var(--success); border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.08); }
+  .p-badge.tone-warning { color: var(--warning); border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.08); }
+  .p-badge.tone-danger  { color: var(--danger);  border-color: rgba(239,68,68,0.35);  background: rgba(239,68,68,0.08); }
+  .p-badge.tone-accent  { color: var(--accent);  border-color: rgba(6,182,212,0.35);  background: rgba(6,182,212,0.08); }
+
+  .p-header-actions { position: relative; z-index: 1; align-self: start; }
+
+  /* ---------- Section headings ---------- */
+  .p-section { padding: 22px 28px; }
+  .p-section + .p-section { border-top: 1px solid var(--line); }
+  .p-section h2 {
+    margin: 0 0 4px; font-size: 15px; font-weight: 800; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .p-section .p-section-sub { margin: 0 0 16px; color: var(--muted); font-size: 13px; }
+
+  .p-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .p-field {
+    padding: 14px 16px; border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+  }
+  .p-field .p-field-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--muted-2); margin: 0 0 6px;
+  }
+  .p-field .p-field-value { font-size: 14px; color: var(--text); word-break: break-word; }
+  .p-field .p-field-value.is-empty { color: var(--muted-2); font-style: italic; }
+
+  .p-activity-list { display: grid; gap: 10px; }
+  .p-activity-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px; border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+  }
+  .p-activity-icon {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    display: grid; place-items: center; background: rgba(99,102,241,0.15); color: var(--primary);
+    font-size: 14px;
+  }
+  .p-activity-body { min-width: 0; }
+  .p-activity-action { font-size: 13px; font-weight: 700; color: var(--text); text-transform: capitalize; }
+  .p-activity-meta { font-size: 12px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+
+  .p-empty { color: var(--muted-2); font-size: 13px; padding: 8px 2px; }
+
+  /* ---------- Buttons ---------- */
+  .p-btn {
+    appearance: none; border: 1px solid var(--line); border-radius: var(--radius-sm);
+    padding: 10px 18px; font-family: var(--font-sans); font-weight: 700; font-size: 13.5px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.04); color: var(--text);
+    transition: transform var(--duration) var(--ease), background var(--duration) var(--ease), opacity var(--duration) var(--ease);
+    text-decoration: none;
+  }
+  .p-btn:hover { background: rgba(255,255,255,0.08); }
+  .p-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .p-btn:active { transform: scale(0.98); }
+  .p-btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+  .p-btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; box-shadow: 0 8px 22px var(--primary-glow); }
+  .p-btn-primary:hover { background: linear-gradient(135deg, var(--primary), var(--secondary)); filter: brightness(1.08); }
+  .p-btn-danger-quiet { color: var(--danger); background: transparent; border-color: rgba(239,68,68,0.3); }
+  .p-btn-sm { padding: 7px 12px; font-size: 12.5px; }
+
+  .p-spinner {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
+    animation: p-spin 0.7s linear infinite;
+    display: inline-block;
+  }
+  @keyframes p-spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Modal / Dialog ---------- */
+  .p-modal-overlay {
+    position: fixed; inset: 0; background: rgba(5,6,10,0.72);
+    backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px; z-index: 200;
+  }
+  .p-modal-overlay.is-open { display: flex; }
+  .p-modal {
+    width: min(560px, 100%);
+    max-height: min(88vh, 720px);
+    overflow-y: auto;
+    background: var(--surface-raised);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    padding: 26px 26px 22px;
+  }
+  .p-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .p-modal-header h3 { margin: 0; font-size: 18px; font-weight: 800; }
+  .p-modal-close {
+    background: transparent; border: none; color: var(--muted); font-size: 20px;
+    cursor: pointer; line-height: 1; padding: 6px; border-radius: var(--radius-xs);
+  }
+  .p-modal-close:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+  .p-modal-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .p-avatar-editor { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+  .p-avatar-preview {
+    width: 76px; height: 76px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 26px;
+    position: relative; border: 2px solid var(--line);
+  }
+  .p-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .p-avatar-preview.is-loading::after {
+    content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+  }
+  .p-avatar-actions { display: flex; flex-direction: column; gap: 8px; }
+  .p-avatar-actions-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .p-avatar-hint { font-size: 12px; color: var(--muted-2); }
+  .p-progress-track {
+    width: 100%; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.08);
+    overflow: hidden; margin-top: 8px; display: none;
+  }
+  .p-progress-track.is-active { display: block; }
+  .p-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width 0.2s var(--ease); }
+
+  .p-form-field { margin-bottom: 16px; }
+  .p-form-field label {
+    display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 6px;
+  }
+  .p-form-field .p-input,
+  .p-form-field textarea {
+    width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--line);
+    background: rgba(255,255,255,0.04); color: var(--text); padding: 11px 13px;
+    font: inherit; font-size: 14px; transition: border-color var(--duration) var(--ease);
+  }
+  .p-form-field textarea { min-height: 96px; resize: vertical; }
+  .p-form-field .p-input:focus,
+  .p-form-field textarea:focus {
+    outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow);
+  }
+  .p-form-field .p-input[aria-invalid="true"],
+  .p-form-field textarea[aria-invalid="true"] { border-color: var(--danger); }
+  .p-field-footer { display: flex; justify-content: space-between; margin-top: 4px; }
+  .p-error-text { font-size: 12px; color: var(--danger); min-height: 15px; }
+  .p-char-count { font-size: 11px; color: var(--muted-2); }
+
+  .p-modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+  .p-modal-actions .p-btn { flex: 1; justify-content: center; }
+
+  .p-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--surface-raised); border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm); padding: 12px 18px; font-size: 13.5px; font-weight: 600;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4); opacity: 0; pointer-events: none;
+    transition: opacity var(--duration) var(--ease), transform var(--duration) var(--ease);
+    z-index: 300; display: flex; align-items: center; gap: 8px;
+  }
+  .p-toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .p-toast.tone-success { border-left: 3px solid var(--success); }
+  .p-toast.tone-error { border-left: 3px solid var(--danger); }
+
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 640px) {
+    .profile-shell { padding: 20px 14px 48px; }
+    .p-header { grid-template-columns: 1fr; text-align: center; padding: 26px 20px; }
+    .p-avatar-wrap { justify-self: center; }
+    .p-meta-row { justify-content: center; }
+    .p-header-actions { justify-self: center; }
+    .p-section { padding: 18px 18px; }
+    .p-avatar-editor { flex-direction: column; align-items: flex-start; }
+    .p-modal { padding: 20px 18px 18px; border-radius: 16px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .p-btn, .p-modal-overlay, .p-toast, .p-progress-bar, .p-spinner { transition: none !important; animation: none !important; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="profile-shell" aria-label="Your profile">
+
+  {# ---------------- Profile header ---------------- #}
+  <div class="p-card p-header">
+    <div class="p-avatar-wrap">
+      <div class="p-avatar" id="pHeaderAvatar">
+        {% if profile.get('avatar') %}
+          <img src="{{ profile.get('avatar') }}" alt="{{ username or 'User' }}'s avatar">
+        {% else %}
+          <span>{{ (username or 'U')[:1]|upper }}</span>
+        {% endif %}
+      </div>
+      <span class="p-online-dot {{ 'is-online' if is_online else '' }}"
+            title="{{ 'Online' if is_online else 'Offline' }}" aria-hidden="true"></span>
+    </div>
+
+    <div class="p-identity">
+      <h1 class="p-name">{{ username or 'User' }}</h1>
+      <p class="p-username">@{{ username or 'user' }}</p>
+      <p class="p-email">{{ user_email }}</p>
+      <div class="p-meta-row">
+        {% set status = (user.get('status') or 'pending') if user is defined else 'pending' %}
+        {% if status == 'approved' %}
+          <span class="p-badge tone-success">✓ Approved</span>
+        {% elif status == 'rejected' %}
+          <span class="p-badge tone-danger">Rejected</span>
+        {% else %}
+          <span class="p-badge tone-warning">Pending approval</span>
+        {% endif %}
+
+        {% if user is defined and user.get('verified') %}
+          <span class="p-badge tone-accent">✓ Email verified</span>
+        {% else %}
+          <span class="p-badge">Email unverified</span>
+        {% endif %}
+
+        {% if user is defined and user.get('role') == 'admin' %}
+          <span class="p-badge tone-accent">Admin</span>
+        {% endif %}
+
+        {% if member_since_display %}
+          <span class="p-badge">Member since {{ member_since_display.split(' · ')[0] }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="p-header-actions">
+      <button type="button" class="p-btn p-btn-primary" id="pEditBtn" aria-haspopup="dialog" aria-controls="pEditModal">
+        <span aria-hidden="true">✎</span> Edit profile
+      </button>
+    </div>
+  </div>
+
+  {# ---------------- Profile information ---------------- #}
+  <div class="p-card">
+    <div class="p-section">
+      <h2>Profile information</h2>
+      <p class="p-section-sub">Details visible on your CipherChat Pro account.</p>
+      <div class="p-grid">
+        <div class="p-field">
+          <p class="p-field-label">Username</p>
+          <p class="p-field-value">{{ username or '—' }}</p>
+        </div>
+        <div class="p-field">
+          <p class="p-field-label">Email</p>
+          <p class="p-field-value">{{ user_email }}</p>
+        </div>
+        <div class="p-field">
+          <p class="p-field-label">Phone number</p>
+          {% if profile.get('phone') %}
+            <p class="p-field-value">{{ profile.get('phone') }}</p>
+          {% else %}
+            <p class="p-field-value is-empty">Not provided</p>
+          {% endif %}
+        </div>
+        <div class="p-field">
+          <p class="p-field-label">Verification status</p>
+          <p class="p-field-value">{{ 'Verified' if (user is defined and user.get('verified')) else 'Not verified' }}</p>
+        </div>
+        {% if member_since_display %}
+        <div class="p-field">
+          <p class="p-field-label">Account created</p>
+          <p class="p-field-value">{{ member_since_display }}</p>
+        </div>
+        {% endif %}
+        <div class="p-field" style="grid-column: 1 / -1;">
+          <p class="p-field-label">Bio</p>
+          {% if profile.get('bio') %}
+            <p class="p-field-value">{{ profile.get('bio') }}</p>
+          {% else %}
+            <p class="p-field-value is-empty">No bio yet — tell people a bit about yourself.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# ---------------- Security summary ---------------- #}
+    <div class="p-section">
+      <h2>🛡️ Security</h2>
+      <p class="p-section-sub">A quick summary of your account's security state.</p>
+      <div class="p-grid">
+        <div class="p-field">
+          <p class="p-field-label">Email verification</p>
+          <p class="p-field-value">{{ 'Verified ✓' if (user is defined and user.get('verified')) else 'Not verified' }}</p>
+        </div>
+        <div class="p-field">
+          <p class="p-field-label">Account status</p>
+          <p class="p-field-value">{{ (user.get('status') or 'pending')|capitalize if user is defined else 'Pending' }}</p>
+        </div>
+        {% if last_login_display %}
+        <div class="p-field">
+          <p class="p-field-label">Last login</p>
+          <p class="p-field-value">{{ last_login_display }}</p>
+        </div>
+        {% endif %}
+        {% if user is defined and user.get('login_count') %}
+        <div class="p-field">
+          <p class="p-field-label">Total logins</p>
+          <p class="p-field-value">{{ user.get('login_count') }}</p>
+        </div>
+        {% endif %}
+        {% if last_update_display %}
+        <div class="p-field">
+          <p class="p-field-label">Last profile update</p>
+          <p class="p-field-value">{{ last_update_display }}</p>
+        </div>
+        {% endif %}
+      </div>
+      {% if session.get('role') == 'admin' or (username or '')|lower == 'admin' %}
+      <div style="margin-top:16px;">
+        <a class="p-btn p-btn-sm" href="{{ url_for('admin.admin') }}">Go to admin security controls →</a>
+      </div>
+      {% endif %}
+    </div>
+
+    {# ---------------- Recent activity ---------------- #}
+    <div class="p-section">
+      <h2>Recent activity</h2>
+      <p class="p-section-sub">Recent security-relevant events on your account.</p>
+      {% if recent_activity %}
+        <div class="p-activity-list">
+          {% for entry in recent_activity %}
+          <div class="p-activity-item">
+            <div class="p-activity-icon" aria-hidden="true">•</div>
+            <div class="p-activity-body">
+              <div class="p-activity-action">{{ entry.get('action', 'activity') }}</div>
+              <div class="p-activity-meta">
+                {{ entry.get('timestamp', '') }}
+                {% if entry.get('ip') %} · {{ entry.get('ip') }}{% endif %}
+                {% if entry.get('user_agent') %} · {{ entry.get('user_agent') }}{% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="p-empty">No recent activity recorded yet.</p>
+      {% endif %}
+    </div>
+
+    <div class="p-section">
+      <a class="p-btn p-btn-sm" href="{{ url_for('chat.chat') }}">← Back to chat</a>
+    </div>
+  </div>
+</section>
+
+{# ---------------- Edit profile dialog ---------------- #}
+<div class="p-modal-overlay" id="pEditModal" role="presentation">
+  <div class="p-modal" role="dialog" aria-modal="true" aria-labelledby="pEditModalTitle">
+    <div class="p-modal-header">
+      <h3 id="pEditModalTitle">Edit profile</h3>
+      <button type="button" class="p-modal-close" id="pModalCloseBtn" aria-label="Close dialog">×</button>
+    </div>
+
+    <form id="pEditForm" novalidate>
+      <div class="p-avatar-editor">
+        <div class="p-avatar-preview" id="pAvatarPreview">
+          {% if profile.get('avatar') %}
+            <img src="{{ profile.get('avatar') }}" alt="" id="pAvatarPreviewImg">
+          {% else %}
+            <span id="pAvatarPreviewInitial">{{ (username or 'U')[:1]|upper }}</span>
+          {% endif %}
+        </div>
+        <div class="p-avatar-actions">
+          <div class="p-avatar-actions-row">
+            <button type="button" class="p-btn p-btn-sm" id="pAvatarChangeBtn">Change photo</button>
+            <button type="button" class="p-btn p-btn-sm p-btn-danger-quiet" id="pAvatarRemoveBtn"
+                    {% if not profile.get('avatar') %}style="display:none;"{% endif %}>Remove</button>
+          </div>
+          <p class="p-avatar-hint">PNG, JPG, GIF or WEBP. Max 5&nbsp;MB.</p>
+          <div class="p-progress-track" id="pAvatarProgressTrack" aria-hidden="true">
+            <div class="p-progress-bar" id="pAvatarProgressBar"></div>
+          </div>
+          <p class="p-error-text" id="pAvatarError" role="alert"></p>
+        </div>
+        <input type="file" id="pAvatarInput" accept="image/png,image/jpeg,image/gif,image/webp" class="visually-hidden" aria-hidden="true" tabindex="-1">
+      </div>
+
+      <div class="p-form-field">
+        <label for="pUsernameInput">Username</label>
+        <input type="text" id="pUsernameInput" class="p-input" name="username"
+               value="{{ username or '' }}" maxlength="20" autocomplete="off"
+               aria-describedby="pUsernameError">
+        <div class="p-field-footer">
+          <span class="p-error-text" id="pUsernameError" role="alert"></span>
+        </div>
+      </div>
+
+      <div class="p-form-field">
+        <label for="pBioInput">Bio</label>
+        <textarea id="pBioInput" name="bio" maxlength="500" placeholder="A short bio about you"
+                  aria-describedby="pBioError pBioCount">{{ profile.get('bio', '') }}</textarea>
+        <div class="p-field-footer">
+          <span class="p-error-text" id="pBioError" role="alert"></span>
+          <span class="p-char-count" id="pBioCount">0 / 500</span>
+        </div>
+      </div>
+
+      <div class="p-form-field">
+        <label for="pPhoneInput">Phone number (optional)</label>
+        <input type="tel" id="pPhoneInput" class="p-input" name="phone"
+               value="{{ profile.get('phone', '') }}" maxlength="20" placeholder="+1 555 000 0000"
+               aria-describedby="pPhoneError">
+        <div class="p-field-footer">
+          <span class="p-error-text" id="pPhoneError" role="alert"></span>
+        </div>
+      </div>
+
+      <div class="p-modal-actions">
+        <button type="button" class="p-btn" id="pCancelBtn">Cancel</button>
+        <button type="submit" class="p-btn p-btn-primary" id="pSaveBtn">
+          <span id="pSaveBtnLabel">Save changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="p-toast" id="pToast" role="status" aria-live="polite"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  "use strict";
+
+  var editBtn = document.getElementById("pEditBtn");
+  var modal = document.getElementById("pEditModal");
+  var closeBtn = document.getElementById("pModalCloseBtn");
+  var cancelBtn = document.getElementById("pCancelBtn");
+  var form = document.getElementById("pEditForm");
+  var saveBtn = document.getElementById("pSaveBtn");
+  var saveBtnLabel = document.getElementById("pSaveBtnLabel");
+
+  var usernameInput = document.getElementById("pUsernameInput");
+  var bioInput = document.getElementById("pBioInput");
+  var phoneInput = document.getElementById("pPhoneInput");
+  var bioCount = document.getElementById("pBioCount");
+
+  var avatarInput = document.getElementById("pAvatarInput");
+  var avatarChangeBtn = document.getElementById("pAvatarChangeBtn");
+  var avatarRemoveBtn = document.getElementById("pAvatarRemoveBtn");
+  var avatarPreview = document.getElementById("pAvatarPreview");
+  var avatarError = document.getElementById("pAvatarError");
+  var progressTrack = document.getElementById("pAvatarProgressTrack");
+  var progressBar = document.getElementById("pAvatarProgressBar");
+
+  var toast = document.getElementById("pToast");
+
+  var MAX_AVATAR_BYTES = 5 * 1024 * 1024; // 5 MB — soft client-side check
+  var ALLOWED_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"];
+
+  var initialState = {
+    username: usernameInput.value,
+    bio: bioInput.value,
+    phone: phoneInput.value
+  };
+  var pendingAvatarUrl = undefined; // undefined = untouched, "" = remove, string = new url
+  var isSubmitting = false;
+  var isUploadingAvatar = false;
+  var lastFocused = null;
+
+  function updateBioCount() {
+    bioCount.textContent = bioInput.value.length + " / 500";
+  }
+  bioInput.addEventListener("input", updateBioCount);
+  updateBioCount();
+
+  function isDirty() {
+    if (pendingAvatarUrl !== undefined) return true;
+    return usernameInput.value !== initialState.username ||
+           bioInput.value !== initialState.bio ||
+           phoneInput.value !== initialState.phone;
+  }
+
+  function clearErrors() {
+    document.getElementById("pUsernameError").textContent = "";
+    document.getElementById("pBioError").textContent = "";
+    document.getElementById("pPhoneError").textContent = "";
+    avatarError.textContent = "";
+    [usernameInput, bioInput, phoneInput].forEach(function (el) {
+      el.removeAttribute("aria-invalid");
+    });
+  }
+
+  function showToast(message, tone) {
+    toast.textContent = message;
+    toast.className = "p-toast is-visible tone-" + (tone || "success");
+    window.clearTimeout(showToast._t);
+    showToast._t = window.setTimeout(function () {
+      toast.classList.remove("is-visible");
+    }, 3500);
+  }
+
+  function openModal() {
+    lastFocused = document.activeElement;
+    modal.classList.add("is-open");
+    usernameInput.value = initialState.username;
+    bioInput.value = initialState.bio;
+    phoneInput.value = initialState.phone;
+    pendingAvatarUrl = undefined;
+    clearErrors();
+    updateBioCount();
+    window.setTimeout(function () { usernameInput.focus(); }, 0);
+    document.addEventListener("keydown", onKeydown);
+  }
+
+  function closeModal(force) {
+    if (!force && isDirty()) {
+      var ok = window.confirm("You have unsaved changes. Discard them?");
+      if (!ok) return;
+    }
+    modal.classList.remove("is-open");
+    document.removeEventListener("keydown", onKeydown);
+    if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") {
+      closeModal(false);
+    } else if (e.key === "Tab") {
+      var focusable = modal.querySelectorAll('button, input, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) return;
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    }
+  }
+
+  editBtn.addEventListener("click", openModal);
+  closeBtn.addEventListener("click", function () { closeModal(false); });
+  cancelBtn.addEventListener("click", function () { closeModal(false); });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal(false);
+  });
+
+  window.addEventListener("beforeunload", function (e) {
+    if (modal.classList.contains("is-open") && isDirty()) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+
+  // ---------------- Avatar handling ----------------
+  avatarChangeBtn.addEventListener("click", function () { avatarInput.click(); });
+
+  avatarInput.addEventListener("change", function () {
+    avatarError.textContent = "";
+    var file = avatarInput.files && avatarInput.files[0];
+    if (!file) return;
+
+    if (ALLOWED_TYPES.indexOf(file.type) === -1) {
+      avatarError.textContent = "Please choose a PNG, JPG, GIF, or WEBP image.";
+      avatarInput.value = "";
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      avatarError.textContent = "Image is too large. Please choose a file under 5 MB.";
+      avatarInput.value = "";
+      return;
+    }
+
+    // Local preview before upload
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      avatarPreview.innerHTML = '<img src="' + ev.target.result + '" alt="" id="pAvatarPreviewImg">';
+    };
+    reader.readAsDataURL(file);
+
+    uploadAvatar(file);
+  });
+
+  function setAvatarLoading(loading) {
+    isUploadingAvatar = loading;
+    avatarPreview.classList.toggle("is-loading", loading);
+    avatarChangeBtn.disabled = loading;
+    saveBtn.disabled = loading || isSubmitting;
+    progressTrack.classList.toggle("is-active", loading);
+    if (!loading) progressBar.style.width = "0%";
+  }
+
+  function uploadAvatar(file) {
+    setAvatarLoading(true);
+    var xhr = new XMLHttpRequest();
+    var data = new FormData();
+    data.append("file", file);
+
+    xhr.open("POST", "{{ url_for('media.upload_file') }}", true);
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+
+    xhr.upload.addEventListener("progress", function (e) {
+      if (e.lengthComputable) {
+        var pct = Math.round((e.loaded / e.total) * 100);
+        progressBar.style.width = pct + "%";
+      }
+    });
+
+    xhr.onload = function () {
+      setAvatarLoading(false);
+      var resp = null;
+      try { resp = JSON.parse(xhr.responseText); } catch (err) { /* noop */ }
+
+      if (xhr.status >= 200 && xhr.status < 300 && resp && resp.success && resp.url) {
+        pendingAvatarUrl = resp.url;
+        avatarRemoveBtn.style.display = "";
+      } else {
+        var msg = (resp && resp.error) ? resp.error : "Upload failed. Please try a different image.";
+        avatarError.textContent = msg;
+        avatarInput.value = "";
+      }
+    };
+
+    xhr.onerror = function () {
+      setAvatarLoading(false);
+      avatarError.textContent = "Upload failed. Check your connection and try again.";
+      avatarInput.value = "";
+    };
+
+    xhr.send(data);
+  }
+
+  avatarRemoveBtn.addEventListener("click", function () {
+    pendingAvatarUrl = "";
+    avatarPreview.innerHTML = '<span id="pAvatarPreviewInitial">' +
+      (initialState.username ? initialState.username[0].toUpperCase() : "U") + "</span>";
+    avatarRemoveBtn.style.display = "none";
+    avatarInput.value = "";
+    avatarError.textContent = "";
+  });
+
+  // ---------------- Client-side validation ----------------
+  function validateClient() {
+    clearErrors();
+    var ok = true;
+
+    var uname = usernameInput.value.trim();
+    if (!uname || uname.length < 3 || uname.length > 20 || !/^[a-zA-Z0-9_.-]+$/.test(uname)) {
+      document.getElementById("pUsernameError").textContent =
+        "Username must be 3–20 characters (letters, numbers, _ . -).";
+      usernameInput.setAttribute("aria-invalid", "true");
+      ok = false;
+    }
+
+    if (bioInput.value.length > 500) {
+      document.getElementById("pBioError").textContent = "Bio must be 500 characters or fewer.";
+      bioInput.setAttribute("aria-invalid", "true");
+      ok = false;
+    }
+
+    var phone = phoneInput.value.trim();
+    if (phone && !/^\+?[0-9 ()\-.]{7,20}$/.test(phone)) {
+      document.getElementById("pPhoneError").textContent = "Enter a valid phone number.";
+      phoneInput.setAttribute("aria-invalid", "true");
+      ok = false;
+    }
+
+    return ok;
+  }
+
+  // ---------------- Save ----------------
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (isSubmitting || isUploadingAvatar) return;
+    if (!validateClient()) return;
+
+    isSubmitting = true;
+    saveBtn.disabled = true;
+    cancelBtn.disabled = true;
+    saveBtnLabel.innerHTML = '<span class="p-spinner" aria-hidden="true"></span> Saving…';
+
+    var payload = {
+      username: usernameInput.value.trim(),
+      bio: bioInput.value,
+      phone: phoneInput.value.trim()
+    };
+    if (pendingAvatarUrl !== undefined) payload.avatar = pendingAvatarUrl;
+
+    fetch("{{ url_for('chat.profile') }}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) { return res.json().then(function (data) { return { status: res.status, data: data }; }); })
+      .then(function (result) {
+        isSubmitting = false;
+        saveBtn.disabled = false;
+        cancelBtn.disabled = false;
+        saveBtnLabel.textContent = "Save changes";
+
+        if (result.status >= 200 && result.status < 300 && result.data.success) {
+          initialState = {
+            username: result.data.profile.username || usernameInput.value,
+            bio: result.data.profile.bio || "",
+            phone: result.data.profile.phone || ""
+          };
+          pendingAvatarUrl = undefined;
+          showToast("Profile updated successfully.", "success");
+          closeModal(true);
+          window.setTimeout(function () { window.location.reload(); }, 600);
+        } else if (result.data && result.data.errors) {
+          var errs = result.data.errors;
+          if (errs.username) {
+            document.getElementById("pUsernameError").textContent = errs.username;
+            usernameInput.setAttribute("aria-invalid", "true");
+          }
+          if (errs.phone) {
+            document.getElementById("pPhoneError").textContent = errs.phone;
+            phoneInput.setAttribute("aria-invalid", "true");
+          }
+          if (errs.avatar) {
+            avatarError.textContent = errs.avatar;
+          }
+          showToast("Please fix the highlighted fields.", "error");
+        } else {
+          showToast("Something went wrong. Please try again.", "error");
+        }
+      })
+      .catch(function () {
+        isSubmitting = false;
+        saveBtn.disabled = false;
+        cancelBtn.disabled = false;
+        saveBtnLabel.textContent = "Save changes";
+        showToast("Network error. Please try again.", "error");
+      });
+  });
+})();
+</script>
+{% endblock %}

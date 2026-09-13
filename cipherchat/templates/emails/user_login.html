@@ -1,0 +1,20 @@
+{% extends "emails/base_email.html" %}
+{% import "emails/components/_macros.html" as ui %}
+
+{% block title %}Login successful — CipherChat Pro{% endblock %}
+{% block preheader %}You've successfully logged in to CipherChat Pro.{% endblock %}
+
+{% block header_title %}
+<h1 style="margin:0 0 6px 0;font-size:21px;font-weight:700;color:#0f172a;">Login successful 🎉</h1>
+<p style="margin:0 0 4px 0;color:#64748b;">Hello {{ user_email }}, you have successfully logged in to CipherChat Pro.</p>
+{% endblock %}
+
+{% block content %}
+{{ ui.info_table([
+  ("Login time", login_time),
+  ("IP address", user_info['ip']),
+  ("Device", user_info['user_agent']),
+]) }}
+
+{{ ui.security_notice("If this wasn't you, reset your password immediately and contact support.") }}
+{% endblock %}

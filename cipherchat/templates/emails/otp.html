@@ -1,0 +1,18 @@
+{% extends "emails/base_email.html" %}
+{% import "emails/components/_macros.html" as ui %}
+
+{% block title %}Login code — {{ app_name|default('CipherChat Pro') }}{% endblock %}
+{% block preheader %}Your {{ app_name|default('CipherChat Pro') }} login code expires in {{ expiry_minutes|default(10) }} minutes.{% endblock %}
+
+{% block header_title %}
+<h1 style="margin:0 0 6px 0;font-size:21px;font-weight:700;color:#0f172a;">Confirm it's you</h1>
+<p style="margin:0 0 4px 0;color:#64748b;">Hi {{ username|default('there') }},</p>
+{% endblock %}
+
+{% block content %}
+<p>You requested to log in to your {{ app_name|default('CipherChat Pro') }} account. Enter the code below to complete your login.</p>
+
+{{ ui.otp_code(otp, expiry_minutes) }}
+
+{{ ui.security_notice("If you didn't request this login, you can safely ignore this email — your account remains secure.") }}
+{% endblock %}

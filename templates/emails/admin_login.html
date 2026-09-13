@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>New User Login - SecureChat</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+            .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+            .email-card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #667eea; padding-bottom: 20px; }
+            .title { color: #667eea; font-size: 28px; margin-bottom: 10px; }
+            .alert { background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 15px; margin: 20px 0; color: #155724; }
+            .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .info-table th, .info-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+            .info-table th { background: #f8f9fa; font-weight: bold; color: #495057; }
+            .timestamp { background: #fff3cd; border-radius: 5px; padding: 8px; font-family: monospace; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="email-card">
+                <div class="header">
+                    <h1 class="title">🔔 New User Login Alert</h1>
+                    <p>SecureChat Admin Notification</p>
+                </div>
+                <div class="alert">
+                    <strong>✅ Successful Authentication</strong><br>
+                    A user has successfully completed the full authentication process.
+                </div>
+                <table class="info-table">
+                    <tr>
+                        <th>👤 User Email</th>
+                        <td>{{ user_email }}</td>
+                    </tr>
+                    <tr>
+                        <th>🕐 Login Time</th>
+                        <td><span class="timestamp">{{ login_time }}</span></td>
+                    </tr>
+                    <tr>
+                        <th>🌐 IP Address</th>
+                        <td>{{ user_info.get('ip', 'Unknown') }}</td>
+                    </tr>
+                    <tr>
+                        <th>🖥️ User Agent</th>
+                        <td>{{ user_info.get('user_agent', 'Unknown') }}</td>
+                    </tr>
+                    <tr>
+                        <th>🔐 Authentication Steps</th>
+                        <td>✅ Master Password → ✅ OTP Verification → ✅ Dynamic Password</td>
+                    </tr>
+                    <tr>
+                        <th>🛡️ Security Level</th>
+                        <td><strong style="color: #28a745;">HIGH - 3-Factor Authentication</strong></td>
+                    </tr>
+                </table>
+                <div class="footer">
+                    <p><strong>SecureChat Admin Panel</strong></p>
+                    <p>This is an automated security notification</p>
+                    <p>© 2025 SecureChat. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>

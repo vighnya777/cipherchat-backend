@@ -1,0 +1,38 @@
+<div class="panel-header">
+  <div>
+    <h2>Activity logs</h2>
+    <p>Audit trail for recent admin actions and system events.</p>
+  </div>
+  <div class="panel-actions">
+    <button class="btn btn-outline-light btn-sm" onclick="clearLogs()">Clear logs</button>
+  </div>
+</div>
+<div class="panel-card">
+  <div class="panel-card-body">
+    <div class="log-table-wrapper">
+      <table class="table admin-table table-sm">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Action</th>
+            <th>User</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs|reverse %}
+            <tr>
+              <td>{{ log.timestamp[:16] }}</td>
+              <td>{{ log.action.replace('_', ' ').title() }}</td>
+              <td>{{ log.email or 'System' }}</td>
+              <td>{{ log.details }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if not logs %}
+      <div class="empty-table">No activity logs available.</div>
+    {% endif %}
+  </div>
+</div>

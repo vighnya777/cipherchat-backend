@@ -1,0 +1,155 @@
+{% extends "admin/layout.html" %}
+{% block title %}User Details{% endblock %}
+{% block content %}
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-brand">
+      <div class="brand-mark">C</div>
+      <div>
+        <h1>CipherChat</h1>
+        <p>Admin control center</p>
+      </div>
+    </div>
+    <nav class="admin-nav">
+      <button class="admin-nav-item" data-bs-target="#dashboard" type="button" onclick="window.location.href='/admin/'">Dashboard</button>
+      <button class="admin-nav-item active" data-bs-target="#users" type="button" onclick="window.location.href='/admin/#users'">Users</button>
+      <button class="admin-nav-item" data-bs-target="#rooms" type="button">Rooms</button>
+      <button class="admin-nav-item" data-bs-target="#security" type="button">Security</button>
+      <button class="admin-nav-item" data-bs-target="#analytics" type="button">Analytics</button>
+      <button class="admin-nav-item" data-bs-target="#logs" type="button">Logs</button>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <div class="admin-avatar">{{ session.user_email[0].upper() if session.user_email else 'A' }}</div>
+      <div>
+        <div class="admin-username">{{ session.user_email or 'Admin' }}</div>
+        <div class="admin-role">Administrator</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    {% if error %}
+      <section class="panel-card detail-empty-state">
+        <div class="panel-card-body">
+          <div class="detail-empty-icon">!</div>
+          <h2>User not found</h2>
+          <p>The requested account could not be found or is no longer available.</p>
+          <button class="btn btn-outline-light btn-sm" onclick="window.location.href='/admin/#users'">Back to users</button>
+        </div>
+      </section>
+    {% else %}
+      {% set user_status = (user.status or 'pending')|lower %}
+      {% set user_role = (user.role or 'user')|lower %}
+      {% set account_score = 92 if user.verified else 78 %}
+      {% set detail_name = user.username or (user.email.split('@')[0] if user.email else 'Unknown user') %}
+      {% set detail_initial = (detail_name[0] | upper) if detail_name else 'U' %}
+      {% set profile_bio = user.profile.bio if user.profile and user.profile.bio else 'No profile bio provided yet. This user has not added a personal summary.' %}
+
+      <section class="panel-card detail-profile-shell">
+        <div class="detail-profile-header">
+          <div class="detail-headline-wrap">
+            <div class="detail-avatar-large">{{ detail_initial }}</div>
+            <div class="detail-headline-copy">
+              <div class="detail-kicker">User profile</div>
+              <h2>{{ detail_name }}</h2>
+              <p>{{ user.email }}</p>
+            </div>
+          </div>
+          <div class="detail-action-row">
+            <button class="btn btn-outline-light btn-sm" onclick="window.location.href='/admin/#users'">Back to users</button>
+            {% if user_status == 'pending' %}
+              <button class="btn btn-success btn-sm ms-2" onclick="approveUser('{{ user.email }}')"><i class="fas fa-check me-1"></i> Approve User</button>
+              <button class="btn btn-danger btn-sm ms-2" onclick="rejectUser('{{ user.email }}')"><i class="fas fa-times me-1"></i> Reject User</button>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="detail-summary-top">
+          <div class="detail-badges-wrap">
+            <span class="status-pill status-{{ user_status }}">{{ user_status|title }}</span>
+            <span class="role-pill role-{{ user_role }}">{{ user_role|title }}</span>
+            <span class="utility-pill">{% if user.verified %}Verified{% else %}Not verified{% endif %}</span>
+          </div>
+          <div class="detail-score-card">
+            <span>Account health</span>
+            <strong>{{ account_score }}%</strong>
+          </div>
+        </div>
+
+        <div class="detail-stats-grid">
+          <div class="detail-stat-card stats-primary">
+            <label>Joined</label>
+            <strong>{{ user.created_at[:10] if user.created_at else '—' }}</strong>
+            <small>Account created</small>
+          </div>
+          <div class="detail-stat-card stats-secondary">
+            <label>Last login</label>
+            <strong>{{ user.last_login[:16] if user.last_login else '—' }}</strong>
+            <small>Recent activity</small>
+          </div>
+          <div class="detail-stat-card stats-accent">
+            <label>Last seen</label>
+            <strong>{{ user.last_seen[:16] if user.last_seen else '—' }}</strong>
+            <small>Online history</small>
+          </div>
+          <div class="detail-stat-card stats-success">
+            <label>Login count</label>
+            <strong>{{ user.login_count or 0 }}</strong>
+            <small>Sessions tracked</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="detail-content-grid">
+        <div class="panel-card detail-panel-card">
+          <div class="panel-card-header">
+            <h3>Account overview</h3>
+          </div>
+          <div class="panel-card-body">
+            <div class="user-detail-grid">
+              <div class="user-detail-item"><span>Email</span><strong>{{ user.email }}</strong></div>
+              <div class="user-detail-item"><span>Role</span><strong>{{ user.role or 'user' }}</strong></div>
+              <div class="user-detail-item"><span>Status</span><strong>{{ user.status or 'pending' }}</strong></div>
+              <div class="user-detail-item"><span>Verification</span><strong>{{ 'Verified' if user.verified else 'Pending' }}</strong></div>
+              <div class="user-detail-item"><span>City</span><strong>{{ user.city or 'Not set' }}</strong></div>
+              <div class="user-detail-item"><span>Timezone</span><strong>{{ user.timezone or 'UTC' }}</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card detail-panel-card">
+          <div class="panel-card-header">
+            <h3>Profile summary</h3>
+          </div>
+          <div class="panel-card-body">
+            <div class="user-detail-section first">
+              <span>Bio</span>
+              <p>{{ profile_bio }}</p>
+            </div>
+            <div class="user-detail-section">
+              <span>Permissions</span>
+              <div class="user-badge-row">
+                {% for permission in (user.permissions or ['standard']) %}
+                  <span class="user-detail-badge">{{ permission }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="user-detail-section">
+              <span>Current rooms</span>
+              <div class="user-badge-row">
+                {% if user.current_rooms %}
+                  {% for room in user.current_rooms %}
+                    <span class="user-detail-badge">{{ room }}</span>
+                  {% endfor %}
+                {% else %}
+                  <span class="user-detail-badge muted">No active rooms</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

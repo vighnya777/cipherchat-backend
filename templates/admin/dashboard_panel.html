@@ -1,0 +1,73 @@
+<div class="panel-header">
+  <div>
+    <h2>Admin Dashboard</h2>
+    <p>Monitor platform health, active users, and system state.</p>
+  </div>
+  <div class="panel-actions">
+    <button class="btn btn-primary btn-sm" onclick="refreshStats()">Refresh data</button>
+    <button class="btn btn-outline-light btn-sm" onclick="showBroadcastModal()">Broadcast</button>
+  </div>
+</div>
+<div class="dashboard-grid">
+  <article class="metric-card metric-success">
+    <span class="metric-title">Total users</span>
+    <strong>{{ stats.total_users }}</strong>
+    <small>{{ stats.new_users }} new this week</small>
+  </article>
+  <article class="metric-card metric-info">
+    <span class="metric-title">Active users</span>
+    <strong>{{ stats.active_users }}</strong>
+    <small>{{ '%.1f'|format((stats.active_users / stats.total_users * 100) if stats.total_users > 0 else 0) }}% online</small>
+  </article>
+  <article class="metric-card metric-warning">
+    <span class="metric-title">Pending approvals</span>
+    <strong>{{ stats.pending_users }}</strong>
+    <small>Review user requests</small>
+  </article>
+  <article class="metric-card metric-dark">
+    <span class="metric-title">System health</span>
+    <strong>{{ stats.system_health }}</strong>
+    <small>Uptime: {{ stats.uptime }}</small>
+  </article>
+</div>
+<div class="dashboard-charts">
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <h3>Platform activity</h3>
+      <div class="chart-tabs">
+        <button type="button" class="active" data-range="7d">7d</button>
+        <button type="button" data-range="30d">30d</button>
+        <button type="button" data-range="90d">90d</button>
+      </div>
+    </div>
+    <div class="chart-canvas"><canvas id="activityChart" height="250"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <h3>User distribution</h3>
+    </div>
+    <div class="chart-canvas"><canvas id="statusChart" height="250"></canvas></div>
+  </div>
+</div>
+<div class="dashboard-actions">
+  <button class="admin-action-btn btn-outline-light" onclick="showBroadcastModal()">Broadcast message</button>
+  <button class="admin-action-btn btn-outline-light" onclick="showCleanupModal()">Cleanup rooms</button>
+  <button class="admin-action-btn btn-outline-light" onclick="runSystemHealth()">System health</button>
+  <button class="admin-action-btn btn-outline-light" onclick="window.location.hash = '#users'; activatePanel('users')">Review users</button>
+</div>
+<div class="activity-log-card">
+  <div class="activity-log-card-header">
+    <h3>Recent admin activity</h3>
+  </div>
+  <div class="activity-log-list">
+    {% for log in logs[-6:]|reverse %}
+      <div class="activity-log-item">
+        <div>
+          <strong>{{ log.action.replace('_', ' ').title() }}</strong>
+          <div class="text-muted">{{ log.email or 'System' }} · {{ log.timestamp[:16] }}</div>
+        </div>
+        <div class="text-muted">{{ log.details }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>

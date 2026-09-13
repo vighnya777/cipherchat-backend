@@ -1,0 +1,28 @@
+<div class="panel-header">
+  <div>
+    <h2>Security</h2>
+    <p>System security and access controls for the admin workspace.</p>
+  </div>
+</div>
+<div class="panel-card">
+  <div class="panel-card-header">
+    <h3>Protected access</h3>
+  </div>
+  <div class="panel-card-body">
+    <p class="text-muted">Only admin accounts with the configured <code>ADMIN_EMAIL</code> or admin role may access this page.</p>
+    <div class="security-grid">
+      <div>
+        <span>Admin email</span>
+        <strong>{{ admin_email }}</strong>
+      </div>
+      <div>
+        <span>Active sessions</span>
+        <strong>{{ stats.active_users }}</strong>
+      </div>
+      <div>
+        <span>Verification rate</span>
+        <strong>{{ stats.verified_users }}/{{ stats.total_users }}</strong>
+      </div>
+    </div>
+  </div>
+</div>

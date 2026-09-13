@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>{% block title %}{{ app_name|default('CipherChat Pro') }}{% endblock %}</title>
+<!--[if mso]>
+<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+<![endif]-->
+<style>
+  body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+  table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+  img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+  body { margin: 0; padding: 0; width: 100% !important; background-color: #eef1f6; }
+  a { color: #4f46e5; }
+  @media only screen and (max-width: 620px) {
+    .email-container { width: 100% !important; }
+    .email-padding { padding-left: 20px !important; padding-right: 20px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:#eef1f6;">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#eef1f6;">
+  {% block preheader %}{% endblock %}
+</div>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#eef1f6;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" class="email-container"
+             style="width:600px;max-width:600px;background-color:#ffffff;border-radius:16px;overflow:hidden;
+                    box-shadow:0 1px 3px rgba(15,23,42,0.06);">
+
+        {# ---------- Header ---------- #}
+        <tr>
+          <td align="center" style="background:linear-gradient(135deg,#4f46e5 0%,#4338ca 55%,#3730a3 100%);padding:36px 24px;">
+            <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+                        font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.2px;">
+              🔒 CipherChat <span style="font-weight:400;opacity:.85;">Pro</span>
+            </div>
+            {% block header_kicker %}{% endblock %}
+          </td>
+        </tr>
+
+        {# ---------- Body ---------- #}
+        <tr>
+          <td class="email-padding" style="padding:40px 44px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+                     color:#1e293b;font-size:15px;line-height:1.6;">
+            {% block header_title %}{% endblock %}
+            {% block content %}{% endblock %}
+          </td>
+        </tr>
+
+        {# ---------- Footer ---------- #}
+        <tr>
+          <td class="email-padding" style="background-color:#0f172a;padding:28px 44px;text-align:center;
+                     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+            <div style="font-size:13px;color:#94a3b8;line-height:1.6;">
+              {% block footer_extra %}{% endblock %}
+              This is an automated security message from <strong style="color:#cbd5e1;">CipherChat Pro</strong>.
+              Please do not reply to this email.
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:12px;">
+              &copy; {{ year|default(2026) }} CipherChat Pro. All rights reserved.
+            </div>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome to CipherChat!</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #333;
+            }
+            .container {
+                max-width: 650px;
+                margin: 0 auto;
+                padding: 30px 20px;
+            }
+            .card {
+                background: rgba(255, 255, 255, 0.97);
+                border-radius: 25px;
+                padding: 45px;
+                box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+                backdrop-filter: blur(12px);
+                text-align: center;
+            }
+            .logo {
+                font-size: 38px;
+                font-weight: 900;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 20px;
+            }
+            .success-icon {
+                font-size: 80px;
+                color: #4CAF50;
+                margin: 20px 0;
+            }
+            .title {
+                font-size: 26px;
+                font-weight: bold;
+                color: #222;
+                margin-bottom: 12px;
+            }
+            .status-box {
+                background: #e8f5e8;
+                border-left: 5px solid #4CAF50;
+                border-radius: 12px;
+                padding: 20px;
+                margin: 25px 0;
+                text-align: left;
+            }
+            .next-steps {
+                background: #e3f2fd;
+                border-radius: 12px;
+                padding: 20px;
+                margin: 20px 0;
+                text-align: left;
+            }
+            .step {
+                margin: 15px 0;
+                display: flex;
+                align-items: center;
+            }
+            .step-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: #2196f3;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 12px;
+                flex-shrink: 0;
+            }
+            .footer {
+                margin-top: 35px;
+                font-size: 13px;
+                color: #777;
+                line-height: 1.6;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="card">
+                <div class="logo">🔐 CipherChat</div>
+                <div class="success-icon">✅</div>
+                <div class="title">Email Verified Successfully!</div>
+                <p class="subtitle">Welcome to CipherChat, <strong>{{ username }}</strong>! Your email has been verified.</p>
+                
+                <div class="status-box">
+                    <strong>📊 Current Status:</strong><br>
+                    • ✅ Email Verified<br>
+                    • ⏳ Pending Admin Approval<br>
+                    • 🔒 Account Secured
+                </div>
+                
+                <div class="next-steps">
+                    <strong>🔄 What happens next:</strong>
+                    <div class="step">
+                        <div class="step-icon">1</div>
+                        <div><strong>Admin Approval:</strong> Our team will review your account (usually within 24 hours)</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">2</div>
+                        <div><strong>Approval Notification:</strong> You'll receive an email when approved</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">3</div>
+                        <div><strong>Secure Login:</strong> Complete 3-factor authentication on first login</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">4</div>
+                        <div><strong>Start Chatting:</strong> Access encrypted messaging and file sharing</div>
+                    </div>
+                </div>
+                
+                <div class="security-info">
+                    <p><strong>🔒 Your security is our priority:</strong></p>
+                    <p>All messages are end-to-end encrypted with military-grade AES-256 encryption.</p>
+                </div>
+                
+                <div class="footer">
+                    <p>Thank you for choosing CipherChat for secure communications!</p>
+                    <p>© 2025 CipherChat official. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>

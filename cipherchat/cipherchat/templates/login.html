@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}Sign in | CipherChat{% endblock %}
+{% block extra_css %}
+<style>
+.auth-shell{
+  min-height:calc(100vh - 72px);
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:clamp(32px,8vw,120px);
+  align-items:center;
+  padding:clamp(40px,8vw,112px) 8vw;
+}
+.auth-intro h1{
+  max-width:680px;
+  margin:14px 0 22px;
+  font-size:clamp(46px,7vw,88px);
+  letter-spacing:-.075em;
+  line-height:.96;
+}
+.eyebrow{
+  font:500 12px "DM Mono",monospace;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:#67e8f9;
+}
+.auth-intro p{
+  max-width:470px;
+  margin:0;
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.7;
+}
+.trust-list{
+  display:flex;
+  gap:24px;
+  margin-top:44px;
+  color:#d1d5db;
+  font-size:13px;
+}
+.trust-list span{display:flex;gap:8px;align-items:center}
+.trust-list b{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--success);
+  box-shadow:0 0 15px var(--success);
+}
+.auth-card{
+  padding:36px;
+  max-width:440px;
+  width:100%;
+  justify-self:end;
+}
+.auth-card h2{margin:0 0 6px;font-size:25px;letter-spacing:-.05em}
+.auth-card>p{margin:0 0 28px;color:var(--muted)}
+.field{display:grid;gap:8px;margin-bottom:17px}
+.field label{color:#d1d5db;font-weight:700;font-size:13px}
+.field label span{color:var(--danger)}
+.field small{color:var(--muted);font-size:12px;line-height:1.5}
+.password-control{display:flex}
+.password-control input{border-radius:12px 0 0 12px;border-right:0}
+.password-control button{border-radius:0 12px 12px 0;min-width:72px}
+.auth-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  margin:20px 0;color:var(--muted);font-size:13px;gap:12px;flex-wrap:wrap;
+}
+.auth-meta a{color:#a5b4fc;font-weight:700}
+.auth-meta label{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.security-note{
+  border-top:1px solid var(--line);
+  padding-top:20px;margin-top:24px;
+  color:var(--muted);font-size:12px;line-height:1.6;
+}
+.field-error{color:var(--danger);font-size:12px;font-weight:600;display:none}
+.field.has-error input{
+  border-color:var(--danger);
+  box-shadow:0 0 0 3px rgba(239,68,68,.15);
+}
+.field.has-error .field-error{display:block}
+@media(max-width:900px){
+  .auth-shell{
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+    padding:24px 16px 40px;
+    min-height:auto;
+  }
+  .auth-intro{order:0;margin:0}
+  .auth-intro h1{font-size:clamp(28px,8vw,40px);line-height:1.1;margin:10px 0 12px}
+  .auth-intro p{font-size:15px;max-width:100%}
+  .auth-card{
+    order:1;
+    justify-self:auto;
+    margin:0 auto;
+    max-width:100%;
+    width:100%;
+    padding:22px 18px;
+  }
+  .trust-list{margin-top:18px;gap:12px;flex-wrap:wrap;font-size:12px}
+  .auth-card h2{font-size:22px}
+}
+@media(max-width:480px){
+  .auth-shell{padding:16px 12px 32px}
+  .auth-card{padding:18px 14px}
+  .password-control button{min-width:60px;padding:0 10px}
+}
+</style>
+{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-intro">
+    <div class="eyebrow">CipherChat / secure workspace</div>
+    <h1>Conversations, without compromise.</h1>
+    <p>A focused communication space for teams that treat privacy as a product feature, not a promise.</p>
+    <div class="trust-list">
+      <span><b></b>Multi-step verification</span>
+      <span><b></b>Live presence</span>
+      <span><b></b>Private rooms</span>
+    </div>
+  </div>
+
+  <form class="auth-card glass-card" method="post" id="loginForm" novalidate>
+    <div class="eyebrow">Welcome back</div>
+    <h2>Sign in to CipherChat</h2>
+    <p>Use your approved workspace credentials.</p>
+
+    <div class="field" id="fieldIdentifier">
+      <label for="identifier">Username or email <span>*</span></label>
+      <input
+        id="identifier"
+        name="identifier"
+        type="text"
+        required
+        autocomplete="username"
+        placeholder="alex.morgan or you@company.com"
+        value="{{ identifier|default('') }}"
+        aria-describedby="identifierHelp identifierError"
+      >
+      <small id="identifierHelp">Sign in with your username or registered email.</small>
+      <span class="field-error" id="identifierError">Enter a valid username or email address.</span>
+    </div>
+
+    <div class="field" id="fieldPassword">
+      <label for="password">Password <span>*</span></label>
+      <div class="password-control">
+        <input
+          id="password"
+          type="password"
+          name="password"
+          required
+          autocomplete="current-password"
+          placeholder="Enter your password"
+        >
+        <button class="btn btn-outline-light" type="button" id="togglePassword">Show</button>
+      </div>
+      <span class="field-error" id="passwordError">Password is required.</span>
+    </div>
+
+    <div class="auth-meta">
+      <label><input type="checkbox" id="rememberMe" name="remember" value="1"> Remember this device</label>
+      <a href="{{ url_for('auth.forgot_password') }}">Reset password</a>
+    </div>
+
+    <button class="btn btn-primary w-100" type="submit">Continue securely</button>
+
+    <div class="security-note">
+      Protected by email OTP verification. New here?
+      <a href="{{ url_for('auth.register') }}" style="color:#a5b4fc">Request an account</a>.
+    </div>
+  </form>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  const form = document.getElementById('loginForm');
+  const identifier = document.getElementById('identifier');
+  const password = document.getElementById('password');
+  const toggle = document.getElementById('togglePassword');
+  const fieldId = document.getElementById('fieldIdentifier');
+  const fieldPw = document.getElementById('fieldPassword');
+
+  function validIdentifier(value) {
+    value = (value || '').trim();
+    if (!value) return false;
+    if (value.includes('@')) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    return /^[a-zA-Z0-9_.\-]{3,20}$/.test(value);
+  }
+
+  toggle.addEventListener('click', function () {
+    const show = password.type === 'password';
+    password.type = show ? 'text' : 'password';
+    this.textContent = show ? 'Hide' : 'Show';
+  });
+
+  const submitBtn = form.querySelector('button[type="submit"]');
+  form.addEventListener('submit', function (e) {
+    let ok = true;
+    fieldId.classList.remove('has-error');
+    fieldPw.classList.remove('has-error');
+    if (!validIdentifier(identifier.value)) { fieldId.classList.add('has-error'); ok = false; }
+    if (!(password.value || '').length) { fieldPw.classList.add('has-error'); ok = false; }
+    if (!ok) { e.preventDefault(); return; }
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.dataset.label = submitBtn.textContent;
+      submitBtn.textContent = 'Authenticating…';
+    }
+  });
+
+  identifier.addEventListener('input', () => fieldId.classList.remove('has-error'));
+  password.addEventListener('input', () => fieldPw.classList.remove('has-error'));
+})();
+</script>
+{% endblock %}

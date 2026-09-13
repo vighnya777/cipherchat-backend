@@ -1,0 +1,28 @@
+{% extends "emails/base_email.html" %}
+{% import "emails/components/_macros.html" as ui %}
+
+{% block title %}Verify your email — CipherChat Pro{% endblock %}
+{% block preheader %}Verify your email to finish setting up your CipherChat Pro account.{% endblock %}
+
+{% block header_title %}
+<h1 style="margin:0 0 6px 0;font-size:21px;font-weight:700;color:#0f172a;">Verify your email address</h1>
+<p style="margin:0 0 4px 0;color:#64748b;">Welcome to CipherChat Pro — one step left to complete your registration.</p>
+{% endblock %}
+
+{% block content %}
+{{ ui.info_table([
+  ("Username", username),
+  ("Email", email),
+  ("Registered", registered_at),
+]) }}
+
+{{ ui.button(verify_url, "Verify email address") }}
+{{ ui.link_fallback(verify_url) }}
+
+{{ ui.security_notice("You must verify your email within 24 hours to complete registration. After verification, your account will be pending admin approval.") }}
+{{ ui.expiry_notice("This verification link expires in 24 hours.") }}
+
+<p style="margin-top:24px;font-size:13px;color:#64748b;">
+  Next: an administrator reviews new accounts before access is granted. You'll receive a separate email once your account is approved.
+</p>
+{% endblock %}

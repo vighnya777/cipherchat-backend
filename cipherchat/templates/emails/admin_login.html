@@ -1,0 +1,28 @@
+{% extends "emails/base_email.html" %}
+{% import "emails/components/_macros.html" as ui %}
+
+{% block title %}New user login — CipherChat Pro Admin{% endblock %}
+{% block preheader %}A user completed full authentication on CipherChat Pro.{% endblock %}
+
+{% block header_title %}
+<h1 style="margin:0 0 6px 0;font-size:21px;font-weight:700;color:#0f172a;">New user login alert</h1>
+<p style="margin:0 0 4px 0;color:#64748b;">CipherChat Pro admin notification</p>
+{% endblock %}
+
+{% block content %}
+{{ ui.status_badge("Successful authentication", "success") }}
+<p style="margin-top:14px;">A user has successfully completed the full authentication process.</p>
+
+{{ ui.info_table([
+  ("User email", user_email),
+  ("Login time", login_time),
+  ("IP address", user_info.get('ip', 'Unknown')),
+  ("User agent", user_info.get('user_agent', 'Unknown')),
+  ("Auth steps", "Master password → OTP → Dynamic password"),
+  ("Security level", "High — 3-factor authentication"),
+]) }}
+{% endblock %}
+
+{% block footer_extra %}
+This is an automated admin security notification.<br><br>
+{% endblock %}

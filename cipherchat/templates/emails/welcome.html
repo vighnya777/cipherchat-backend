@@ -1,0 +1,36 @@
+{% extends "emails/base_email.html" %}
+{% import "emails/components/_macros.html" as ui %}
+
+{% block title %}Email verified — CipherChat Pro{% endblock %}
+{% block preheader %}Your email is verified. Your CipherChat Pro account is now pending admin approval.{% endblock %}
+
+{% block header_title %}
+<h1 style="margin:0 0 6px 0;font-size:21px;font-weight:700;color:#0f172a;">Email verified successfully!</h1>
+<p style="margin:0 0 4px 0;color:#64748b;">Welcome to CipherChat Pro, {{ username }}.</p>
+{% endblock %}
+
+{% block content %}
+{{ ui.info_table([
+  ("Email", ui.status_badge("Verified", "success")),
+  ("Admin approval", ui.status_badge("Pending", "warning")),
+  ("Account", ui.status_badge("Secured", "info")),
+]) }}
+
+<p style="font-weight:600;color:#0f172a;margin-top:28px;">What happens next</p>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:12px 0 24px 0;">
+  <tr>
+    <td style="padding:6px 0;font-size:14px;color:#334155;"><strong>1. Admin review</strong> — our team reviews new accounts, usually within 24 hours.</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 0;font-size:14px;color:#334155;"><strong>2. Approval notice</strong> — you'll get an email as soon as you're approved.</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 0;font-size:14px;color:#334155;"><strong>3. Secure login</strong> — complete multi-factor authentication on your first login.</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 0;font-size:14px;color:#334155;"><strong>4. Start chatting</strong> — access encrypted messaging and file sharing.</td>
+  </tr>
+</table>
+
+{{ ui.security_notice("All messages are end-to-end encrypted with AES-256. Your privacy is our priority.", "🔒") }}
+{% endblock %}

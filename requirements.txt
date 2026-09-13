@@ -1,0 +1,16 @@
+Flask==2.3.3
+Flask-SocketIO==5.3.6
+python-socketio[asyncio]
+email-validator==2.0.0
+python-dotenv==1.0.0
+eventlet
+bcrypt
+argon2-cffi>=23.1.0
+redis
+flask_limiter
+flask_cors
+itsdangerous
+SQLAlchemy>=2.0,<3
+alembic>=1.13
+psycopg2-binary>=2.9
+requests>=2.31.0

@@ -1,0 +1,10 @@
+{% macro field(name, label, type='text', placeholder='', required=false, autocomplete='') -%}
+<div class="field">
+  <label for="{{ name }}">{{ label }}{% if required %} <span>*</span>{% endif %}</label>
+  <input id="{{ name }}" name="{{ name }}" type="{{ type }}"{% if required %} required{% endif %}{% if autocomplete %} autocomplete="{{ autocomplete }}"{% endif %} placeholder="{{ placeholder }}">
+</div>
+{%- endmacro %}
+
+{% macro primary_button(text, class_name='') -%}
+<button class="btn btn-primary {{ class_name }}" type="submit">{{ text }}</button>
+{%- endmacro %}

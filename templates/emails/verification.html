@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verify Your Email - CipherChat</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #333;
+            }
+            .container {
+                max-width: 650px;
+                margin: 0 auto;
+                padding: 30px 20px;
+            }
+            .card {
+                background: rgba(255, 255, 255, 0.97);
+                border-radius: 25px;
+                padding: 45px;
+                box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+                backdrop-filter: blur(12px);
+                text-align: center;
+                animation: fadeIn 1s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(15px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .logo {
+                font-size: 38px;
+                font-weight: 900;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 20px;
+            }
+            .title {
+                font-size: 26px;
+                font-weight: bold;
+                color: #222;
+                margin-bottom: 12px;
+            }
+            .subtitle {
+                font-size: 16px;
+                color: #555;
+                margin-bottom: 35px;
+            }
+            .verify-btn {
+                display: inline-block;
+                background: linear-gradient(135deg, #4CAF50, #45a049);
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+                padding: 16px 32px;
+                border-radius: 50px;
+                text-decoration: none;
+                box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+                transition: all 0.3s ease;
+                margin: 20px 0;
+            }
+            .verify-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4);
+            }
+            .verify-link {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 12px;
+                padding: 15px;
+                margin: 20px 0;
+                word-break: break-all;
+                font-family: monospace;
+                font-size: 14px;
+            }
+            .user-info {
+                background: #e7f3ff;
+                border-radius: 12px;
+                padding: 20px;
+                margin: 25px 0;
+                text-align: left;
+            }
+            .info-item {
+                margin: 8px 0;
+                display: flex;
+                align-items: center;
+            }
+            .info-item i {
+                width: 20px;
+                margin-right: 10px;
+                color: #667eea;
+            }
+            .warning {
+                background: #fff8e1;
+                border-left: 5px solid #ff9800;
+                border-radius: 12px;
+                padding: 15px;
+                margin: 25px 0;
+                font-size: 15px;
+                color: #8a6d3b;
+            }
+            .expiry {
+                background: #e3f2fd;
+                border-left: 5px solid #2196f3;
+                border-radius: 12px;
+                padding: 15px;
+                margin: 20px 0;
+                font-size: 15px;
+                color: #0d47a1;
+            }
+            .next-steps {
+                background: #f3e5f5;
+                border-left: 5px solid #9c27b0;
+                border-radius: 12px;
+                padding: 20px;
+                margin: 20px 0;
+                text-align: left;
+            }
+            .step {
+                margin: 10px 0;
+                display: flex;
+                align-items: flex-start;
+            }
+            .step-number {
+                background: #9c27b0;
+                color: white;
+                width: 25px;
+                height: 25px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+                font-weight: bold;
+                margin-right: 12px;
+                flex-shrink: 0;
+            }
+            .footer {
+                margin-top: 35px;
+                font-size: 13px;
+                color: #777;
+                line-height: 1.6;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="card">
+                <div class="logo">🔐 CipherChat</div>
+                <div class="title">Verify Your Email Address</div>
+                <div class="subtitle">Welcome to CipherChat! Please verify your email to complete your registration.</div>
+                
+                <div class="user-info">
+                    <div class="info-item">
+                        <i class="fas fa-user"></i>
+                        <strong>Username:</strong> {{ username }}
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <strong>Email:</strong> {{ email }}
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-calendar"></i>
+                        <strong>Registered:</strong> {{ registered_at }}
+                    </div>
+                </div>
+                
+                <a href="{{ verify_url }}" class="verify-btn">
+                    Open CipherChat Pro &amp; Verify
+                </a>
+                
+                <div class="verify-link">
+                    <strong>Opens the CipherChat Pro app</strong> (install the app first if needed).<br>
+                    If the app does not open, copy this link and open it on your phone:<br>
+                    {{ verify_url }}
+                </div>
+                
+                <div class="warning">
+                    ⚠️ <strong>Important:</strong><br>
+                    You must verify your email within 24 hours to complete your registration. 
+                    After verification, your account will be pending admin approval.
+                </div>
+                
+                <div class="expiry">
+                    ⏰ <strong>Link Expiry:</strong> This verification link expires in <strong>24 hours</strong>.
+                </div>
+                
+                <div class="next-steps">
+                    <strong>📋 What happens next:</strong>
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div>Verify your email (this step)</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div>Wait for admin approval (usually within 24 hours)</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div>Complete 3-factor authentication on first login</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div>Start using secure, encrypted messaging!</div>
+                    </div>
+                </div>
+                
+                <div class="security-note">
+                    🛡️ <strong>Security Note:</strong><br>
+                    This is an automated message from <strong>CipherChat</strong>. 
+                    If you didn't create an account, please ignore this email.
+                </div>
+                
+                <div class="footer">
+                    <p>🔒 CipherChat - Military-Grade Encryption for Private Communications</p>
+                    <p>© 2025 CipherChat official. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>

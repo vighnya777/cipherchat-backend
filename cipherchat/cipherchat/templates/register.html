@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}Create account | CipherChat{% endblock %}
+
+
+{% block extra_css %}
+<style>
+.auth-shell{
+  min-height:calc(100vh - 72px);
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:clamp(32px,8vw,120px);
+  align-items:center;
+  padding:clamp(40px,8vw,112px) 8vw;
+}
+.auth-intro h1{
+  max-width:680px;
+  margin:14px 0 22px;
+  font-size:clamp(46px,7vw,88px);
+  letter-spacing:-.075em;
+  line-height:.96;
+}
+.eyebrow{
+  font:500 12px "DM Mono",monospace;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:#67e8f9;
+}
+.auth-intro p{
+  max-width:470px;
+  margin:0;
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.7;
+}
+.trust-list{
+  display:flex;
+  gap:24px;
+  margin-top:44px;
+  color:#d1d5db;
+  font-size:13px;
+  flex-wrap:wrap;
+}
+.trust-list span{display:flex;gap:8px;align-items:center}
+.trust-list b{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--success);
+  box-shadow:0 0 15px var(--success);
+}
+.auth-card{
+  padding:36px;
+  max-width:480px;
+  width:100%;
+  justify-self:end;
+}
+.auth-card h2{margin:0 0 6px;font-size:25px;letter-spacing:-.05em}
+.auth-card>p{margin:0 0 28px;color:var(--muted)}
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.field{display:grid;gap:8px}
+.field.full{grid-column:1/-1}
+.field label{color:#d1d5db;font-weight:700;font-size:13px}
+.field label span{color:var(--danger)}
+.field small{color:var(--muted);font-size:12px;line-height:1.5}
+.form-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-top:26px;
+  color:var(--muted);
+  font-size:13px;
+}
+.form-foot a{color:#a5b4fc;font-weight:700}
+.security-note{
+  border-top:1px solid var(--line);
+  padding-top:18px;margin-top:22px;
+  color:var(--muted);font-size:12px;line-height:1.6;
+}
+@media(max-width:900px){
+  .auth-shell{
+    display:flex;flex-direction:column;gap:28px;
+    padding:24px 16px 40px;min-height:auto;
+  }
+  .auth-intro h1{font-size:clamp(28px,8vw,40px);line-height:1.1}
+  .auth-intro p{font-size:15px}
+  .auth-card{margin:0 auto;max-width:100%;width:100%;padding:22px 18px}
+  .trust-list{margin-top:18px;gap:12px;font-size:12px}
+}
+@media(max-width:560px){
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .form-foot{align-items:stretch;flex-direction:column-reverse;gap:12px}
+  .form-foot .btn{width:100%}
+  .auth-shell{padding:16px 12px 32px}
+}
+</style>
+{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-intro">
+    <div class="eyebrow">CipherChat / private by design</div>
+    <h1>Join your secure workspace.</h1>
+    <p>Create an account to begin verification. Your administrator approves access before you can sign in.</p>
+    <div class="trust-list">
+      <span><b></b>Email verification</span>
+      <span><b></b>Admin approval</span>
+      <span><b></b>Encrypted sessions</span>
+    </div>
+  </div>
+
+  <form class="auth-card glass-card" method="post" id="registrationForm" novalidate>
+    <div class="eyebrow">Create account</div>
+    <h2>Request workspace access</h2>
+    <p>Fill in your details to start the secure onboarding flow.</p>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="username">Username <span>*</span></label>
+        <input id="username" name="username" required minlength="3" maxlength="20"
+               autocomplete="username" placeholder="alex.morgan"
+               pattern="[a-zA-Z0-9_.\-]{3,20}">
+      </div>
+      <div class="field">
+        <label for="phone">Phone <small>(optional)</small></label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 555 000 0000">
+      </div>
+      <div class="field full">
+        <label for="email">Work email <span>*</span></label>
+        <input id="email" name="email" type="email" required autocomplete="email" placeholder="alex@company.com">
+      </div>
+      <div class="field">
+        <label for="password">Password <span>*</span></label>
+        <input id="password" name="password" type="password" required minlength="6"
+               autocomplete="new-password" placeholder="Create a strong password">
+      </div>
+      <div class="field">
+        <label for="confirm_password">Confirm password <span>*</span></label>
+        <input id="confirm_password" name="confirm_password" type="password" required minlength="6"
+               autocomplete="new-password" placeholder="Repeat your password">
+      </div>
+    </div>
+
+    <div class="form-foot">
+      <span>Already have access? <a href="{{ url_for('auth.login') }}">Sign in</a></span>
+      <button class="btn btn-primary" type="submit">Request access</button>
+    </div>
+
+    <div class="security-note">
+      After registration, verify your email. An administrator must approve your account before sign-in.
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  const form = document.getElementById('registrationForm');
+  if (!form) return;
+  form.addEventListener('submit', function() {
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn && form.checkValidity()) {
+      btn.disabled = true;
+      btn.textContent = 'Requesting Access…';
+    }
+  });
+})();
+</script>
+{% endblock %}

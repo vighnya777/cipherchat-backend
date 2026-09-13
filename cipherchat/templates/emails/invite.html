@@ -1,0 +1,24 @@
+{% extends "emails/base_email.html" %}
+{% import "emails/components/_macros.html" as ui %}
+
+{% block title %}You're invited — CipherChat Pro{% endblock %}
+{% block preheader %}{{ created_by }} invited you to join "{{ room_name }}" on CipherChat Pro.{% endblock %}
+
+{% block header_title %}
+<h1 style="margin:0 0 6px 0;font-size:21px;font-weight:700;color:#0f172a;">You're invited!</h1>
+<p style="margin:0 0 4px 0;color:#64748b;">Join the conversation on CipherChat Pro.</p>
+{% endblock %}
+
+{% block content %}
+{{ ui.button(invite_url, "Join chat room") }}
+{{ ui.link_fallback(invite_url) }}
+
+{{ ui.info_table([
+  ("Room", room_name),
+  ("Invited by", created_by),
+  ("Expires", expires_in),
+  ("Security", "End-to-end encrypted"),
+]) }}
+
+{{ ui.security_notice("Only share this invite with people you trust — this link grants access to the chat room.") }}
+{% endblock %}

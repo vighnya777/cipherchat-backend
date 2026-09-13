@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SecureChat Invitation</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .email-card { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); backdrop-filter: blur(10px); }
+            .header { text-align: center; margin-bottom: 30px; }
+            .logo { font-size: 32px; font-weight: bold; color: #667eea; margin-bottom: 10px; }
+            .title { font-size: 24px; color: #333; margin-bottom: 10px; }
+            .subtitle { color: #666; font-size: 16px; }
+            .invite-container { text-align: center; margin: 30px 0; }
+            .invite-btn { display: inline-block; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; font-size: 18px; font-weight: bold; padding: 15px 30px; border-radius: 50px; text-decoration: none; box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3); transition: transform 0.2s; }
+            .invite-btn:hover { transform: translateY(-2px); }
+            .invite-link { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 20px 0; word-break: break-all; font-family: monospace; }
+            .info-box { background: #e7f3ff; border-radius: 8px; padding: 15px; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="email-card">
+                <div class="header">
+                    <div class="logo">🔐 SecureChat</div>
+                    <h1 class="title">You're Invited!</h1>
+                    <p class="subtitle">Join the conversation on SecureChat</p>
+                </div>
+                <div class="invite-container">
+                    <a href="{{ invite_url }}" class="invite-btn">Join Chat Room</a>
+                </div>
+                <div class="invite-link">
+                    <strong>Or copy this link:</strong><br>
+                    {{ invite_url }}
+                </div>
+                <div class="info-box">
+                    <strong>📋 Invitation Details:</strong><br>
+                    • <strong>Room:</strong> {{ room_name }}<br>
+                    • <strong>Invited by:</strong> {{ created_by }}<br>
+                    • <strong>Expires:</strong> {{ expires_in }}<br>
+                    • <strong>Security:</strong> End-to-end encrypted
+                </div>
+                <div class="warning" style="background: #fff3cd; border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
+                    <span style="font-size: 20px; margin-right: 10px;">⚠️</span>
+                    <strong>Only share with trusted people!</strong><br>
+                    This link provides access to the chat room.
+                </div>
+                <div class="footer">
+                    <p>SecureChat - Your Privacy, Our Priority</p>
+                    <p>© 2025 SecureChat. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>

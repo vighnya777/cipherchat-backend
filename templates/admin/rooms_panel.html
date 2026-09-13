@@ -1,0 +1,27 @@
+<div class="panel-header">
+  <div>
+    <h2>Room management</h2>
+    <p>Review active rooms, cleanup idle chat spaces, and inspect group state.</p>
+  </div>
+</div>
+<div class="panel-card">
+  <div class="panel-card-header">
+    <h3>Room summary</h3>
+    <div>
+      <button class="btn btn-outline-light btn-sm" onclick="showCleanupModal()">Cleanup inactive rooms</button>
+    </div>
+  </div>
+  <div class="panel-card-body">
+    <div class="room-stat-row">
+      <div>
+        <span>Total group rooms</span>
+        <strong>{{ stats.total_rooms }}</strong>
+      </div>
+      <div>
+        <span>Total messages</span>
+        <strong>{{ stats.total_messages }}</strong>
+      </div>
+    </div>
+    <p class="text-muted">This section is a workspace summary. Room-level detail will be added in the next release.</p>
+  </div>
+</div>

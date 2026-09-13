@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block title %}Sign in | CipherChat{% endblock %}
+{% block extra_css %}
+<style>
+.auth-shell{min-height:calc(100vh - 72px);display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(32px,8vw,120px);align-items:center;padding:clamp(40px,8vw,112px) 8vw}
+.auth-intro h1{max-width:680px;margin:14px 0 22px;font-size:clamp(46px,7vw,88px);letter-spacing:-.075em;line-height:.96}
+.eyebrow{font:500 12px "DM Mono",monospace;letter-spacing:.13em;text-transform:uppercase;color:#67e8f9}
+.auth-intro p{max-width:470px;margin:0;color:var(--muted);font-size:17px;line-height:1.7}
+.trust-list{display:flex;gap:24px;margin-top:44px;color:#d1d5db;font-size:13px;flex-wrap:wrap}
+.trust-list span{display:flex;gap:8px;align-items:center}
+.trust-list b{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 15px var(--success)}
+.auth-card{padding:36px;max-width:440px;width:100%;justify-self:end}
+.auth-card h2{margin:0 0 6px;font-size:25px;letter-spacing:-.05em}
+.auth-card>p{margin:0 0 20px;color:var(--muted)}
+.mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);margin-bottom:22px}
+.mode-tab{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:13px;padding:11px 10px;border-radius:10px;cursor:pointer;transition:.15s ease}
+.mode-tab.is-active{background:rgba(99,102,241,.25);color:#fff;box-shadow:0 0 0 1px rgba(129,140,248,.35)}
+.mode-panel{display:none}
+.mode-panel.is-active{display:block}
+.field{display:grid;gap:8px;margin-bottom:17px}
+.field label{color:#d1d5db;font-weight:700;font-size:13px}
+.field label span{color:var(--danger)}
+.field small{color:var(--muted);font-size:12px;line-height:1.5}
+.field.has-error input{border-color:var(--danger)!important;box-shadow:0 0 0 3px rgba(239,68,68,.15)}
+.field-error{display:none;color:var(--danger);font-size:12px;font-weight:600}
+.field.has-error .field-error{display:block}
+.password-control{display:flex}
+.password-control input{border-radius:12px 0 0 12px;border-right:0}
+.password-control button{border-radius:0 12px 12px 0}
+.auth-meta{display:flex;justify-content:space-between;align-items:center;margin:20px 0;color:var(--muted);font-size:13px}
+.auth-meta a{color:#a5b4fc;font-weight:700}
+.security-note{border-top:1px solid var(--line);padding-top:20px;margin-top:24px;color:var(--muted);font-size:12px;line-height:1.6}
+.security-note a{color:#a5b4fc;font-weight:700}
+.oauth-divider{display:flex;align-items:center;gap:14px;margin:22px 0 18px;color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.oauth-divider::before,.oauth-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.oauth-stack{display:grid;gap:10px;margin-bottom:6px}
+.oauth-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;border:1px solid var(--line);transition:.15s ease;position:relative;overflow:hidden}
+.oauth-btn:hover{transform:translateY(-1px);text-decoration:none}
+.oauth-btn.google{background:#fff;color:#111827}
+.oauth-btn.github{background:#111827;color:#f9fafb;border-color:#374151}
+.oauth-btn svg{width:18px;height:18px;flex-shrink:0}
+.oauth-btn.is-loading{pointer-events:none;opacity:.8}
+.oauth-btn.is-loading .oauth-label{opacity:0}
+.oauth-btn .oauth-spin{display:none;position:absolute;inset:0;align-items:center;justify-content:center;gap:10px;font-size:13px;font-weight:700}
+.oauth-btn.is-loading .oauth-spin{display:flex}
+.oauth-spin::before{content:"";width:16px;height:16px;border-radius:50%;border:2px solid rgba(0,0,0,.15);border-top-color:currentColor;animation:spin .7s linear infinite}
+.oauth-btn.github .oauth-spin::before{border-color:rgba(255,255,255,.2);border-top-color:#fff}
+.btn-loading{opacity:.75;pointer-events:none}
+.btn-loading .btn-label{display:none}
+.btn-loading .btn-spinner{display:inline-flex!important}
+.btn-spinner{display:none;align-items:center;justify-content:center;gap:10px}
+.btn-spinner::before{content:"";width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.otp-actions{display:grid;grid-template-columns:1fr auto;gap:10px}
+.resend-meta{margin-top:10px;color:var(--muted);font-size:12px;text-align:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:800px){.auth-shell{display:block;padding:56px 20px}.auth-intro{margin-bottom:38px}.auth-intro h1{font-size:50px}.auth-card{justify-self:auto;margin:auto}}
+</style>
+{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-intro">
+    <div class="eyebrow">CipherChat / secure workspace</div>
+    <h1>Conversations, without compromise.</h1>
+    <p>A focused communication space for teams that treat privacy as a product feature, not a promise.</p>
+    <div class="trust-list">
+      <span><b></b>Multi-step verification</span>
+      <span><b></b>Live presence</span>
+      <span><b></b>Private rooms</span>
+    </div>
+  </div>
+
+  <div class="auth-card glass-card">
+    <div class="eyebrow">Welcome back</div>
+    <h2>Sign in to CipherChat</h2>
+    <p>Use your approved workspace credentials.</p>
+
+    <div class="mode-tabs" role="tablist" aria-label="Login method">
+      <button type="button" class="mode-tab {% if mode != 'otp' %}is-active{% endif %}" id="tabPassword" role="tab" aria-selected="{{ 'true' if mode != 'otp' else 'false' }}" data-mode="password">Password Login</button>
+      <button type="button" class="mode-tab {% if mode == 'otp' %}is-active{% endif %}" id="tabOtp" role="tab" aria-selected="{{ 'true' if mode == 'otp' else 'false' }}" data-mode="otp">OTP Login</button>
+    </div>
+
+    <!-- Password mode -->
+    <div class="mode-panel {% if mode != 'otp' %}is-active{% endif %}" id="panelPassword" role="tabpanel">
+      <form method="post" action="{{ url_for('auth.login') }}" id="loginForm" novalidate>
+        <div class="field" id="fieldIdentifier">
+          <label for="identifier">Username or email <span>*</span></label>
+          <input id="identifier" name="identifier" type="text" required autocomplete="username"
+                 placeholder="alex.morgan or alex@company.com"
+                 value="{{ identifier|default('') }}">
+          <small>Sign in with either your workspace username or registered email.</small>
+          <span class="field-error">Enter a valid username (3–20 chars) or email address.</span>
+        </div>
+        <div class="field" id="fieldPassword">
+          <label for="password">Password <span>*</span></label>
+          <div class="password-control">
+            <input id="password" type="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
+            <button class="btn btn-outline-light" type="button" id="togglePassword">Show</button>
+          </div>
+        </div>
+        <div class="auth-meta">
+          <label><input type="checkbox" name="remember" value="1"> Remember this device</label>
+          <a href="{{ url_for('auth.forgot_password') }}">Reset password</a>
+        </div>
+        <button class="btn btn-primary w-100" type="submit" id="loginSubmit">
+          <span class="btn-label">Continue securely</span>
+          <span class="btn-spinner">Authenticating…</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- OTP mode -->
+    <div class="mode-panel {% if mode == 'otp' %}is-active{% endif %}" id="panelOtp" role="tabpanel">
+      <form method="post" action="{{ url_for('auth.login_otp_send') }}" id="otpSendForm" novalidate>
+        <div class="field" id="fieldOtpEmail">
+          <label for="otp_email">Email address <span>*</span></label>
+          <input id="otp_email" name="otp_email" type="email" required autocomplete="email"
+                 placeholder="you@company.com" value="{{ otp_email|default('') }}">
+          <small>We’ll email a one-time code. Codes expire quickly.</small>
+          <span class="field-error">Enter a valid email address.</span>
+        </div>
+        <button class="btn btn-primary w-100" type="submit" id="otpSendBtn">
+          <span class="btn-label">Send OTP</span>
+          <span class="btn-spinner">Sending code…</span>
+        </button>
+      </form>
+
+      <form method="post" action="{{ url_for('auth.login_otp_verify') }}" id="otpVerifyForm" style="margin-top:18px" novalidate>
+        <input type="hidden" name="otp_email" id="otp_email_hidden" value="{{ otp_email|default('') }}">
+        <div class="field" id="fieldOtpCode">
+          <label for="otp">One-time code <span>*</span></label>
+          <input id="otp" name="otp" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8"
+                 autocomplete="one-time-code" placeholder="Enter the code from your email" required>
+          <span class="field-error">Enter the code from your email.</span>
+        </div>
+        <div class="auth-meta">
+          <label><input type="checkbox" name="remember" value="1"> Remember this device</label>
+          <span></span>
+        </div>
+        <div class="otp-actions">
+          <button class="btn btn-primary" type="submit" id="otpVerifyBtn">
+            <span class="btn-label">Verify &amp; sign in</span>
+            <span class="btn-spinner">Verifying…</span>
+          </button>
+          <button class="btn btn-outline-light" type="submit" form="otpResendForm" id="otpResendBtn">
+            <span class="btn-label">Resend</span>
+            <span class="btn-spinner">…</span>
+          </button>
+        </div>
+        <div class="resend-meta" id="resendMeta">You can resend after the cooldown if needed.</div>
+      </form>
+      <form method="post" action="{{ url_for('auth.login_otp_resend') }}" id="otpResendForm">
+        <input type="hidden" name="otp_email" id="otp_email_resend" value="{{ otp_email|default('') }}">
+      </form>
+    </div>
+
+    <div class="oauth-divider">or continue with</div>
+    <div class="oauth-stack">
+      <a class="oauth-btn google" id="googleOAuthBtn" href="{{ url_for('auth.google_login') }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 10.2v3.6h5.1c-.2 1.2-.9 2.3-1.9 3l3.1 2.4c1.8-1.7 2.9-4.1 2.9-7 0-.7-.1-1.3-.2-1.9H12z"/><path fill="#34A853" d="M12 22c2.6 0 4.8-.9 6.4-2.3l-3.1-2.4c-.9.6-2 .9-3.3.9-2.5 0-4.6-1.7-5.4-4H3.4v2.5C5 19.9 8.2 22 12 22z"/><path fill="#4A90E2" d="M6.6 14.2c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V7.9H3.4C2.5 9.6 2 11.2 2 13s.5 3.4 1.4 5.1l3.2-2.5z"/><path fill="#FBBC05" d="M12 5.8c1.4 0 2.7.5 3.7 1.4l2.8-2.8C16.8 2.9 14.6 2 12 2 8.2 2 5 4.1 3.4 7.9l3.2 2.5C7.4 7.5 9.5 5.8 12 5.8z"/></svg>
+        <span class="oauth-label">Continue with Google</span>
+        <span class="oauth-spin">Connecting to Google…</span>
+      </a>
+      <a class="oauth-btn github" id="githubOAuthBtn" href="{{ url_for('auth.github_login') }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.48 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.46-1.2-1.12-1.52-1.12-1.52-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.58 2.36 1.12 2.94.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.84c.85 0 1.7.12 2.5.34 1.9-1.32 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .26.18.59.69.48A10.27 10.27 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/></svg>
+        <span class="oauth-label">Continue with GitHub</span>
+        <span class="oauth-spin">Connecting to GitHub…</span>
+      </a>
+    </div>
+
+    <div class="security-note">
+      Protected by secure verification. New here?
+      <a href="{{ url_for('auth.register') }}">Request an account</a>.
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  function qs(id){ return document.getElementById(id); }
+  function setMode(mode) {
+    var isOtp = mode === 'otp';
+    qs('tabPassword').classList.toggle('is-active', !isOtp);
+    qs('tabOtp').classList.toggle('is-active', isOtp);
+    qs('tabPassword').setAttribute('aria-selected', (!isOtp).toString());
+    qs('tabOtp').setAttribute('aria-selected', isOtp.toString());
+    qs('panelPassword').classList.toggle('is-active', !isOtp);
+    qs('panelOtp').classList.toggle('is-active', isOtp);
+    try { history.replaceState(null, '', isOtp ? '?mode=otp' : '?mode=password'); } catch (e) {}
+  }
+  qs('tabPassword').addEventListener('click', function(){ setMode('password'); });
+  qs('tabOtp').addEventListener('click', function(){ setMode('otp'); });
+
+  // Sync otp email across forms
+  var otpEmail = qs('otp_email');
+  function syncEmail() {
+    var v = (otpEmail && otpEmail.value) || '';
+    if (qs('otp_email_hidden')) qs('otp_email_hidden').value = v;
+    if (qs('otp_email_resend')) qs('otp_email_resend').value = v;
+  }
+  if (otpEmail) otpEmail.addEventListener('input', syncEmail);
+  syncEmail();
+
+  function looksLikeEmail(v){ return (v||'').indexOf('@') !== -1; }
+  function validIdentifier(v){
+    v = (v||'').trim();
+    if (!v) return false;
+    if (looksLikeEmail(v)) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    return /^[a-zA-Z0-9_.\-]{3,20}$/.test(v);
+  }
+  function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v||'').trim()); }
+
+  var toggle = qs('togglePassword');
+  var password = qs('password');
+  if (toggle && password) {
+    toggle.addEventListener('click', function(){
+      var show = password.type === 'password';
+      password.type = show ? 'text' : 'password';
+      this.textContent = show ? 'Hide' : 'Show';
+    });
+  }
+
+  function wireSubmit(form, btn, validate) {
+    if (!form || !btn) return;
+    form.addEventListener('submit', function(e){
+      if (validate && !validate()) {
+        e.preventDefault();
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+        btn.removeAttribute('aria-busy');
+        return;
+      }
+      btn.classList.add('btn-loading');
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+    });
+  }
+
+  wireSubmit(qs('loginForm'), qs('loginSubmit'), function(){
+    var ok = true;
+    var field = qs('fieldIdentifier');
+    if (field) field.classList.remove('has-error');
+    if (!validIdentifier(qs('identifier').value)) { field.classList.add('has-error'); ok = false; }
+    if (!(password && password.value)) ok = false;
+    return ok;
+  });
+
+  wireSubmit(qs('otpSendForm'), qs('otpSendBtn'), function(){
+    var field = qs('fieldOtpEmail');
+    field.classList.remove('has-error');
+    if (!validEmail(otpEmail.value)) { field.classList.add('has-error'); return false; }
+    syncEmail();
+    return true;
+  });
+
+  wireSubmit(qs('otpVerifyForm'), qs('otpVerifyBtn'), function(){
+    var field = qs('fieldOtpCode');
+    field.classList.remove('has-error');
+    var code = (qs('otp').value || '').trim();
+    if (!/^[0-9]{4,8}$/.test(code)) { field.classList.add('has-error'); return false; }
+    syncEmail();
+    return true;
+  });
+
+  wireSubmit(qs('otpResendForm'), qs('otpResendBtn'), function(){ syncEmail(); return true; });
+
+  ['googleOAuthBtn','githubOAuthBtn'].forEach(function(id){
+    var el = qs(id);
+    if (!el) return;
+    el.addEventListener('click', function(){ el.classList.add('is-loading'); el.setAttribute('aria-busy','true'); });
+  });
+  window.addEventListener('pageshow', function(e){
+    if (!e.persisted) return;
+    ['googleOAuthBtn','githubOAuthBtn','loginSubmit','otpSendBtn','otpVerifyBtn','otpResendBtn'].forEach(function(id){
+      var el = qs(id); if (!el) return;
+      el.classList.remove('is-loading'); el.classList.remove('btn-loading');
+      el.disabled = false; el.removeAttribute('aria-busy');
+    });
+  });
+})();
+</script>
+{% endblock %}

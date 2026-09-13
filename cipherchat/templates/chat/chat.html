@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block page_class %}chat-page{% endblock %}
+{% block title %}CipherChat — Conversations{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chat-pro.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/panels/responsive-shell.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="chat-overlay" id="chatOverlay"></div>
+
+<div class="chat-container" id="chatAppRoot">
+  <!-- Top bar -->
+  <header class="chat-header">
+    <div class="header-left">
+      <button type="button" class="header-btn mobile-only" id="toggleSidebar" aria-label="Open chats">
+        <i class="bi bi-list" style="font-size:1.25rem"></i>
+      </button>
+      <div class="logo-section">
+        <div class="logo-icon"><i class="bi bi-shield-lock-fill"></i></div>
+        <div class="user-info">
+          <div class="username-display">
+            <span class="logo-text" style="font-size:15px">CipherChat</span>
+            <div class="status-indicator" title="Online"></div>
+          </div>
+          <small>{{ username }} · {{ user_email }}</small>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a class="header-btn" href="{{ url_for('chat.profile') }}" title="Profile">
+        <i class="bi bi-person"></i><span>Profile</span>
+      </a>
+      {% if session.get('role') == 'admin' or session.get('username') == 'admin' or session.get('user_email') == config.get('ADMIN_EMAIL') %}
+      <a class="header-btn" href="{{ url_for('admin.admin') }}" title="Admin">
+        <i class="bi bi-shield-check"></i><span>Admin</span>
+      </a>
+      {% endif %}
+      <a class="header-btn" href="{{ url_for('auth.logout') }}" title="Sign out">
+        <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="chat-body" id="chatBody">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-search">
+          <i class="bi bi-search"></i>
+          <input type="search" id="globalSearch" placeholder="Search chats and people" autocomplete="off">
+        </div>
+        <div class="sidebar-actions">
+          <div class="new-chat-wrap">
+            <button type="button" class="btn-new" id="newMessageBtn">
+              <i class="bi bi-pencil-square"></i> New message
+            </button>
+            <div class="new-chat-menu" id="newChatMenu" aria-hidden="true">
+              <button type="button" data-menu-action="find-friends"><i class="bi bi-person-plus"></i> New contact</button>
+              <button type="button" data-menu-action="new-group"><i class="bi bi-people"></i> New group</button>
+              {% if general_chat_enabled %}
+              <button type="button" data-menu-action="general"><i class="bi bi-chat-dots"></i> General chat</button>
+              {% endif %}
+            </div>
+          </div>
+          <button type="button" class="composer-icon-btn" id="findFriendsBtn" title="Find friends">
+            <i class="bi bi-person-lines-fill"></i>
+          </button>
+        </div>
+        <div class="sidebar-nav" role="tablist">
+          <button type="button" class="is-active" data-side-tab="chats">Chats</button>
+          <button type="button" data-side-tab="contacts">Contacts</button>
+          <button type="button" data-side-tab="groups">Groups</button>
+        </div>
+        <div class="quick-contacts-strip" id="quickContactsStrip"></div>
+      </div>
+      <div class="sidebar-header">
+        <span>Conversations</span>
+        <span class="online-count"><span id="userCount">0</span> online</span>
+      </div>
+      <div class="conversations-list" id="conversationsList"></div>
+      <div class="conversations-list" id="contactsList" style="display:none"></div>
+      <div class="conversations-list" id="groupsList" style="display:none"></div>
+    </aside>
+
+    <!-- Main -->
+    <section class="chat-main">
+      <div class="chat-main-header" id="chatMainHeader">
+        <div class="current-chat-info">
+          <button type="button" class="header-btn mobile-only" id="chatBackBtn" title="Back" aria-label="Back to conversations">
+            <i class="bi bi-arrow-left"></i>
+          </button>
+          <div class="current-chat-avatar" id="currentChatAvatar">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div class="current-chat-details">
+            <h6 id="currentChatName">CipherChat</h6>
+            <p class="current-chat-status" id="currentChatStatus">Connecting…</p>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button type="button" class="header-btn" id="chatCallBtn" title="Call" aria-label="Call">
+            <i class="bi bi-telephone-fill"></i>
+          </button>
+          <button type="button" class="header-btn" id="chatVideoBtn" title="Video call" aria-label="Video call">
+            <i class="bi bi-camera-video-fill"></i>
+          </button>
+          <button type="button" class="header-btn" id="chatSettingsBtn" title="Details" aria-label="Details">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="messages-container" id="messagesContainer">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state-icon"><i class="bi bi-shield-lock-fill"></i></div>
+          <h3>CipherChat</h3>
+          <p>Private, fast messaging for your workspace.</p>
+          {% if general_chat_enabled %}
+          <p>Opening <strong style="color:#25d0a4">General Chat</strong>…</p>
+          {% else %}
+          <p>Pick a chat or group from the left to get started.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="typing-indicator" id="typingIndicator" hidden>
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+        <span>Someone is typing…</span>
+      </div>
+
+      <div class="message-input-container">
+        <div class="input-wrapper">
+          <button type="button" class="composer-icon-btn" id="attachBtn" title="Attach" aria-label="Attach">
+            <i class="bi bi-paperclip"></i>
+          </button>
+          <button type="button" class="composer-icon-btn" id="emojiBtn" title="Emoji" aria-label="Emoji">
+            <i class="bi bi-emoji-smile"></i>
+          </button>
+          <textarea
+            class="message-input"
+            id="messageInput"
+            rows="1"
+            maxlength="4000"
+            placeholder="Type a message…"
+            autocomplete="off"
+          ></textarea>
+          <button type="button" class="composer-icon-btn" id="voiceBtn" title="Voice" aria-label="Voice">
+            <i class="bi bi-mic"></i>
+          </button>
+          <button type="button" class="send-btn" id="sendBtn" aria-label="Send">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+        <input type="file" id="fileInput" hidden multiple>
+        <div class="input-actions">
+          <div class="char-counter"><span id="charCount">0</span>/4000</div>
+          <div class="keyboard-hint">
+            <span><kbd>Enter</kbd> send</span>
+            <span><kbd>Shift</kbd>+<kbd>Enter</kbd> newline</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Details -->
+    <aside class="chat-details" id="chatDetails">
+      <div class="details-section details-user">
+        <div class="big-avatar" id="detailsAvatar">C</div>
+        <div>
+          <strong id="detailsName">CipherChat</strong>
+          <div class="current-chat-status" id="detailsStatus">Select a conversation</div>
+        </div>
+      </div>
+      {% include "chat/groups/details_panel.html" %}      <div class="details-section">
+        <h4>Actions</h4>
+        <button type="button" class="header-btn primary" style="width:100%;margin-bottom:8px" id="detailsSearchBtn">Search in chat</button>
+        <button type="button" class="header-btn" style="width:100%" id="detailsMuteBtn">Mute</button>
+      </div>
+      <div class="details-section">
+        <h4>Shared</h4>
+        <p class="current-chat-status mb-0">Media and files from this chat will show here.</p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- New group sheet -->
+{% include "chat/groups/new_group_sheet.html" %}
+
+<!-- Add member to group sheet -->
+{% include "chat/groups/add_member_sheet.html" %}
+
+<!-- Find friends sheet -->
+<div class="cc-sheet" id="findFriendsSheet" aria-hidden="true">
+  <div class="cc-sheet-card" role="dialog" aria-modal="true">
+    <h3>Find friends</h3>
+    <p>Match contacts to CipherChat accounts. Your full address book is never uploaded automatically.</p>
+    <div class="sidebar-actions" style="margin-bottom:12px">
+      <button type="button" class="btn-new" id="pickContactsBtn">Choose contacts</button>
+      <button type="button" class="composer-icon-btn" id="closeFindFriendsBtn" title="Close"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <input type="search" id="manualContactSearch" placeholder="Search by username, email, or phone"
+           style="width:100%;background:#202c33;border:0;border-radius:10px;padding:10px 12px;color:#fff;margin-bottom:12px">
+    <div id="contactPickerUnsupported" class="current-chat-status" style="display:none;margin-bottom:12px">
+      Contact Picker isn’t supported here. Use search instead.
+    </div>
+    <div id="matchedContacts"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+  window.CIPHERCHAT = {
+    userEmail: {{ user_email|tojson }},
+    username: {{ (username or user_email)|tojson }},
+    generalChatEnabled: {{ general_chat_enabled|default(true)|tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/chat-app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chat-groups.js') }}"></script>
+<script src="{{ url_for('static', filename='js/panels/panel-controller.js') }}"></script>
+<script src="{{ url_for('static', filename='js/panels/quick-contacts.js') }}"></script>
+{% endblock %}
