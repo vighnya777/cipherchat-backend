@@ -343,14 +343,60 @@ def on_leave_room(data):
 
 @socketio.on("initiate_private_chat")
 def on_initiate_private_chat(data):
+    """Start (or resolve) a 1:1 chat room with another user.
+
+    IMPORTANT: every rejection path here MUST emit ``private_chat_error`` back
+    to the requesting socket. Previously several of these branches just
+    ``return``ed silently, which left clients waiting on a timeout with no
+    way to distinguish "user isn't registered" from "you're not logged in"
+    from "the server blew up" — they all looked identical (a hang) to the
+    caller. See client-side timeout handling for the corresponding
+    generic-message regression this caused.
+    """
+    data = data or {}
+
+    def _reject(error: str, message: str) -> None:
+        emit(
+            "private_chat_error",
+            {"error": error, "message": message},
+            room=request.sid,
+        )
+
     if not _authenticated():
+        _reject("unauthorized", "You must be signed in to start a chat.")
         return
-    target = data.get("target_email") or data.get("email") or ""
-    target = store.resolve_email(target) or _normalize_email(target)
-    if not target or target not in store.users:
+
+    raw_target = data.get("target_email") or data.get("email") or ""
+    if not raw_target.strip():
+        _reject("missing_target", "No user was specified.")
         return
+
+    target = store.resolve_email(raw_target) or _normalize_email(raw_target)
     user_email = _normalize_email(session["user_email"])
-    room_id = chat_svc.get_or_create_private_room(user_email, target)
+
+    if target == user_email:
+        _reject("self_chat", "You can't start a chat with yourself.")
+        return
+
+    if not target or target not in store.users:
+        _reject(
+            "user_not_found",
+            "This person hasn't joined CipherChat yet.",
+        )
+        return
+
+    try:
+        room_id = chat_svc.get_or_create_private_room(user_email, target)
+    except ValueError as exc:
+        _reject("invalid_participants", str(exc))
+        return
+    except Exception:
+        logger.exception(
+            "initiate_private_chat failed for %s -> %s", user_email, target
+        )
+        _reject("server_error", "Something went wrong starting the chat.")
+        return
+
     join_room(room_id)
     sid_data = store.active_users.get(request.sid)
     if sid_data and room_id not in sid_data.get("private_rooms", []):

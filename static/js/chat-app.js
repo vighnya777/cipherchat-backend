@@ -151,6 +151,11 @@
       switchConversation(data.room, other.split('@')[0] || other, 'private');
     });
 
+    socket.on('private_chat_error', function (data) {
+      var msg = (data && data.message) || 'Could not open chat.';
+      alert(msg);
+    });
+
     socket.on('reaction_update', function (data) {
       if (!data || !data.message_id) return;
       const msgEl = messagesContainer && messagesContainer.querySelector('[data-mid="' + data.message_id + '"]');

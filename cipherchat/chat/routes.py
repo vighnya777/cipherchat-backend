@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from flask import (
     Blueprint,
     flash,
@@ -16,6 +18,7 @@ from cipherchat.config import get_config
 from cipherchat.services.storage import store
 
 chat_bp = Blueprint("chat", __name__)
+logger = logging.getLogger(__name__)
 
 
 def _require_auth():
@@ -114,6 +117,97 @@ def search_users():
     query = (request.args.get("q") or "").strip()
     results = chat_svc.search_users(query, session["user_email"])
     return jsonify({"success": True, "results": results})
+
+
+@chat_bp.route("/start-chat", methods=["POST"])
+def start_chat():
+    """Find-or-create a 1:1 chat room with another user, synchronously.
+
+    This is the REST counterpart to the ``initiate_private_chat`` socket
+    event. Unlike the socket flow (which requires an active connection and
+    a round trip that can silently time out), this gives the client an
+    immediate, explicit success/error response — including *why* it failed
+    (unregistered user vs. self-chat vs. server error), so the UI never has
+    to fall back to a generic "could not open chat" message.
+
+    Reuses ``chat_svc.get_or_create_private_room`` — the exact same
+    idempotent lookup/creation logic the socket path uses — so both entry
+    points always agree on room identity and never create duplicate rooms.
+    """
+    if not _require_auth():
+        return jsonify({"success": False, "error": "unauthorized", "message": "Please sign in."}), 401
+
+    data = request.get_json(silent=True) or {}
+    raw_target = (data.get("email") or data.get("target_email") or "").strip()
+    if not raw_target:
+        return jsonify({
+            "success": False,
+            "error": "missing_target",
+            "message": "No user was specified.",
+        }), 400
+
+    me = (session.get("user_email") or "").strip().lower()
+    target = store.resolve_email(raw_target.strip().lower()) or raw_target.strip().lower()
+
+    if target == me:
+        return jsonify({
+            "success": False,
+            "error": "self_chat",
+            "message": "You can't start a chat with yourself.",
+        }), 400
+
+    if target not in store.users:
+        return jsonify({
+            "success": False,
+            "error": "user_not_found",
+            "message": "This person hasn't joined CipherChat yet.",
+        }), 404
+
+    user = store.users.get(target) or {}
+    if user.get("status") and user.get("status") != "approved":
+        return jsonify({
+            "success": False,
+            "error": "user_not_available",
+            "message": "This user's account isn't active yet.",
+        }), 409
+
+    try:
+        room_id = chat_svc.get_or_create_private_room(me, target)
+    except ValueError as exc:
+        return jsonify({"success": False, "error": "invalid_participants", "message": str(exc)}), 400
+    except Exception:
+        logger.exception("start_chat failed for %s -> %s", me, target)
+        return jsonify({
+            "success": False,
+            "error": "server_error",
+            "message": "Something went wrong starting the chat.",
+        }), 500
+
+    # Preserve real-time-notification parity with the socket-based
+    # initiate_private_chat flow: let the target user's active sessions know
+    # a new/updated private chat exists even though this request came in via
+    # REST, not over their socket connection.
+    try:
+        from cipherchat.extensions import socketio
+
+        socketio.emit(
+            "private_chat_ready",
+            {"room": room_id, "users": [me, target], "auto_open": False, "unread": 1},
+            room=f"user_{target}",
+        )
+    except Exception:
+        pass
+
+    profile = user.get("profile") or {}
+    display_name = profile.get("display_name") or user.get("username") or target
+
+    return jsonify({
+        "success": True,
+        "room": room_id,
+        "email": target,
+        "username": user.get("username", target),
+        "display_name": display_name,
+    })
 
 
 @chat_bp.route("/room-files")
